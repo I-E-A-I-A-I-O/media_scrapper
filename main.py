@@ -19,10 +19,19 @@ def get_video_src(base: str):
     button_element = wd.find_element(By.XPATH, "//button[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw cnBpEa\"]")
     button_element.click()
 
-    time.sleep(5)
+    time.sleep(15)
 
-    reqs = wd.requests
-    m3u8_url = next((x for x in reqs if x.url.__contains__("hls_master")), "")
+    m3u8_url = ""
+    iterations = 0
+
+    while m3u8_url == "":
+        if (iterations > 5):
+            sys.exit("Too many tries. Timeout.")
+        
+        iterations += 1
+        reqs = wd.requests
+        m3u8_url = next((x for x in reqs if x.url.__contains__("hls_master")), "")
+        time.sleep(1)
 
     wd.quit()
     return m3u8_url

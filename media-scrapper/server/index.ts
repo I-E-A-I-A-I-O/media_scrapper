@@ -23,31 +23,33 @@ const pyPaths = (venv: boolean): string => {
 server.post<{ Body: FromSchema<typeof ResponseBody> }>('/cnn', async (request, reply) => {
   const { url } = request.body
 
-  if (!url || url.length === 0) return reply.status(400).send('No URL provided.');
+  if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
 
+  server.log.info(`CNN URL ${url} received`)
   let m3u8_url: string
   const pScript = spawn(pyPaths(true), [pyPaths(false), url])
 
   pScript.stdout.on('data', (data) => {
     m3u8_url = data.toString()
-  });
-
-  pScript.on('exit', (code) => {
-    reply.status(200).send(m3u8_url)
+    server.log.info(`m3u8 URL ${m3u8_url} generated for CNN URL ${url}`)
   })
 
-  pScript.on('error', (code) => {
+  pScript.on('error', (err) => {
+    server.log.warn(`Python CNN script crashed with error ${err}`)
     reply.status(500).send('error')
+  })
+
+  pScript.on('exit', (code) => {
+    server.log.error(`Script success. Generating MP4 for ${url}`)
+    reply.status(200).send(m3u8_url)
   })
 })
 
 const start = async () => {
   try {
-    await server.listen(3000)
-    console.log('Server started')
-    const address = server.server.address()
-    const port = typeof address === 'string' ? address : address?.port
-
+    const PORT = process.env.PORT || 3000
+    await server.listen(PORT)
+    server.log.info(`Server running in port ${PORT}`)
   } catch (err) {
     server.log.error(err)
     process.exit(1)
