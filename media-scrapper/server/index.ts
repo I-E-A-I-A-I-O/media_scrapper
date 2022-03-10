@@ -2,8 +2,14 @@ import Fastify, { FastifyInstance, RouteShorthandOptions } from 'fastify'
 import { spawn } from 'child_process'
 import { ResponseBody } from './types/body'
 import { FromSchema } from 'json-schema-to-ts'
+import fstatic from 'fastify-static'
+import path from 'path'
+
+const buildDir = path.join(__dirname, '..', 'build')
 
 const server: FastifyInstance = Fastify({});
+
+server.register(fstatic, { root: buildDir })
 
 const pyPaths = (venv: boolean): string => {
   const first = __dirname.substring(0, __dirname.lastIndexOf('/'))
@@ -17,7 +23,7 @@ const pyPaths = (venv: boolean): string => {
 server.post<{ Body: FromSchema<typeof ResponseBody> }>('/cnn', async (request, reply) => {
   const { url } = request.body
 
-  if (!url) return reply.status(400).send('No URL provided.');
+  if (!url || url.length === 0) return reply.status(400).send('No URL provided.');
 
   let m3u8_url: string
   const pScript = spawn(pyPaths(true), [pyPaths(false), url])
