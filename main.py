@@ -9,18 +9,13 @@ import time
 import sys
 
 
-def get_video_src(base: str = "https://edition.cnn.com/videos/us/2022/03/02/ks-4-year-old-case-of-the"
-                              "-mondays-viral-affil-dnt-vpx.kwch?iid=edition_homepage_video_zone-outbrain"
-                              "&dicbo=v1-b22602622d2dbedece7658fc1a5e98bd"
-                              "-006234a14302a1982f4b90e0580f9aaeb2"
-                              "-mnrtmzbymnstellcgmytsljugzrgmljygjqtoljsg43dczlgge3timrrme"):
-
+def get_video_src(base: str):
     caps = DesiredCapabilities.CHROME
     caps['goog:loggingPrefs'] = {'performance': 'ALL'}
     s = ChromeService(ChromeDriverManager().install())
     wd = webdriver.Chrome(service=s, desired_capabilities=caps)
     wd.get(base)
-    WebDriverWait(wd, 10).until(EC.visibility_of_element_located((By.ID, "player-large-media_0-pui-wrapper")))
+    WebDriverWait(wd, 10).until(EC.visibility_of_element_located((By.XPATH, "//button[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw cnBpEa\"]")))
     button_element = wd.find_element(By.XPATH, "//button[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw cnBpEa\"]")
     button_element.click()
 
@@ -33,5 +28,5 @@ def get_video_src(base: str = "https://edition.cnn.com/videos/us/2022/03/02/ks-4
     return m3u8_url
 
 
-print(get_video_src())
+print(get_video_src(sys.argv[1]))
 sys.stdout.flush()

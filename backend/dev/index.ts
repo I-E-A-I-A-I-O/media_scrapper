@@ -1,5 +1,7 @@
 import Fastify, { FastifyInstance, RouteShorthandOptions } from 'fastify'
 import { spawn } from 'child_process'
+import { ResponseBody } from './types/body'
+import { FromSchema } from 'json-schema-to-ts'
 
 const server: FastifyInstance = Fastify({});
 
@@ -12,9 +14,13 @@ const pyPaths = (venv: boolean): string => {
   return `${base}/venv/bin/python3`
 }
 
-server.get('/asd', async (request, reply) => {
+server.post<{ Body: FromSchema<typeof ResponseBody> }>('/cnn', async (request, reply) => {
+  const { url } = request.body
+
+  if (!url) return reply.status(400).send('No URL provided.');
+
   let m3u8_url: string
-  const pScript = spawn(pyPaths(true), [pyPaths(false)])
+  const pScript = spawn(pyPaths(true), [pyPaths(false), url])
 
   pScript.stdout.on('data', (data) => {
     m3u8_url = data.toString()
