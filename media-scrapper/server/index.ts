@@ -7,41 +7,58 @@ import path from 'path'
 
 const buildDir = path.join(__dirname, '..', 'build')
 
-const server: FastifyInstance = Fastify({});
+const server: FastifyInstance = Fastify({ logger: true });
 
 server.register(fstatic, { root: buildDir })
 
-const pyPaths = (venv: boolean): string => {
+const pyPaths = (venv: boolean, script: string): string => {
   const first = __dirname.substring(0, __dirname.lastIndexOf('/'))
   const base = first.substring(0, first.lastIndexOf('/'))
 
-  if (!venv) return `${base}/main.py`
+  if (!venv) return `${base}/${script}`
 
   return `${base}/venv/bin/python3`
 }
 
-server.post<{ Body: FromSchema<typeof ResponseBody> }>('/cnn', async (request, reply) => {
+const processLink = (url: string): string => {
+  if (url.includes('cnn.com')) return 'cnnSearch.py'
+
+  return ''
+}
+
+server.post<{ Body: FromSchema<typeof ResponseBody> }>('/scrap', async (request, reply) => {
   const { url } = request.body
 
   if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
 
-  server.log.info(`CNN URL ${url} received`)
-  let m3u8_url: string
-  const pScript = spawn(pyPaths(true), [pyPaths(false), url])
+  const pythonScript = processLink(url);
+
+  if (pythonScript.length === 0) return reply.status(400).send('Website not supported')
+
+  server.log.info(`URL ${url} received. Starting script ${pythonScript}`)
+  let media_url: string
+  const pScript = spawn(pyPaths(true, ''), [pyPaths(false, pythonScript), url])
 
   pScript.stdout.on('data', (data) => {
-    m3u8_url = data.toString()
-    server.log.info(`m3u8 URL ${m3u8_url} generated for CNN URL ${url}`)
-  })
-
-  pScript.on('error', (err) => {
-    server.log.warn(`Python CNN script crashed with error ${err}`)
-    reply.status(500).send('error')
+    media_url = data.toString()
+    server.log.info(`media URL ${media_url} generated for URL ${url}`)
   })
 
   pScript.on('exit', (code) => {
-    server.log.error(`Script success. Generating MP4 for ${url}`)
-    reply.status(200).send(m3u8_url)
+    if (media_url == null || media_url.length === 0) {
+      server.log.warn(`Script failed to extract media URL from ${url} using script ${pythonScript}`)
+      return reply.status(500).send("Couldn't scrap media from URL. Try again later.")
+    }
+    
+    const m3u8 = media_url.includes('.m3u8')
+    let format: string
+
+    if (m3u8) format = 'mp3&mp4'
+    else if (media_url.includes('.mp4')) format = 'mp3&mp4'
+    else format = 'mp3'
+
+    server.log.info(`Script success. Sending back media URL ${media_url}`)
+    reply.status(200).send({ url: media_url, m3u8, format })
   })
 })
 

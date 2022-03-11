@@ -10,28 +10,37 @@ import sys
 
 
 def get_video_src(base: str):
+    xPath = ""
+
+    if (base.__contains__('cnnespanol.cnn.com')):
+        xPath = "//*[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw iCGaIi\"]"
+    else:
+        xPath = "//*[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw cnBpEa\"]"
+
+    print(xPath)
     caps = DesiredCapabilities.CHROME
     caps['goog:loggingPrefs'] = {'performance': 'ALL'}
     s = ChromeService(ChromeDriverManager().install())
     wd = webdriver.Chrome(service=s, desired_capabilities=caps)
     wd.get(base)
-    WebDriverWait(wd, 10).until(EC.visibility_of_element_located((By.XPATH, "//button[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw cnBpEa\"]")))
-    button_element = wd.find_element(By.XPATH, "//button[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw cnBpEa\"]")
+    WebDriverWait(wd, 10).until(EC.visibility_of_element_located((By.XPATH, "//*[@class = \"player-large-media_0-pui-wrapper\"]")))
+    button_element = wd.find_element(By.XPATH, xPath)
     button_element.click()
 
     time.sleep(15)
 
-    m3u8_url = ""
+    reqs = wd.requests
+    m3u8_url = next((x for x in reqs if x.url.__contains__("hls_master")), "")
     iterations = 0
 
     while m3u8_url == "":
-        if (iterations > 5):
+        if (iterations > 10):
             sys.exit("Too many tries. Timeout.")
         
         iterations += 1
         reqs = wd.requests
         m3u8_url = next((x for x in reqs if x.url.__contains__("hls_master")), "")
-        time.sleep(1)
+        time.sleep(2)
 
     wd.quit()
     return m3u8_url
