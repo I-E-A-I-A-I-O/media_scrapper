@@ -10,22 +10,33 @@ import sys
 
 
 def get_video_src(base: str):
-    xPath = ""
+    primary = ""
+    secondary = ""
 
-    if (base.__contains__('cnnespanol.cnn.com')):
-        xPath = "//*[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw iCGaIi\"]"
+    if (base.__contains__("edition.cnn.com")):
+        primary = "//*[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw iCGaIi\"]"
+        secondary = "//*[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw cnBpEa\"]"
     else:
-        xPath = "//*[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw cnBpEa\"]"
+        primary = "//*[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw cnBpEa\"]"
+        secondary = "//*[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw iCGaIi\"]"
 
-    print(xPath)
     caps = DesiredCapabilities.CHROME
     caps['goog:loggingPrefs'] = {'performance': 'ALL'}
     s = ChromeService(ChromeDriverManager().install())
     wd = webdriver.Chrome(service=s, desired_capabilities=caps)
     wd.get(base)
-    WebDriverWait(wd, 10).until(EC.visibility_of_element_located((By.XPATH, "//*[@class = \"player-large-media_0-pui-wrapper\"]")))
-    button_element = wd.find_element(By.XPATH, xPath)
-    button_element.click()
+    WebDriverWait(wd, 10).until(EC.visibility_of_element_located((By.XPATH, "//*[@title = \"Play\"]")))
+    
+    try:
+        button_element = wd.find_element(By.XPATH, primary)
+        button_element.click()
+    except:
+        try:
+            button_element = wd.find_element(By.XPATH, secondary)
+            button_element.click()
+        except:
+            sys.exit("Couldn't find play button")
+
 
     time.sleep(15)
 

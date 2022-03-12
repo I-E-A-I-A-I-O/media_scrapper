@@ -1,9 +1,11 @@
 import Fastify, { FastifyInstance, RouteShorthandOptions } from 'fastify'
 import { spawn } from 'child_process'
-import { ResponseBody } from './types/body'
+import { ResponseBody, FileParams } from './types/body'
 import { FromSchema } from 'json-schema-to-ts'
 import fstatic from 'fastify-static'
 import path from 'path'
+import fs from 'fs'
+import utils from 'util'
 
 const buildDir = path.join(__dirname, '..', 'build')
 
@@ -24,6 +26,13 @@ const processLink = (url: string): string => {
   if (url.includes('cnn.com')) return 'cnnSearch.py'
 
   return ''
+}
+
+const getContentType = (name: string): string => {
+  const ex = name.split('.')[1]
+  
+  if (ex === 'mp4') return 'video/mp4'
+  else return 'audio/mp3'
 }
 
 server.post<{ Body: FromSchema<typeof ResponseBody> }>('/scrap', async (request, reply) => {
@@ -60,6 +69,58 @@ server.post<{ Body: FromSchema<typeof ResponseBody> }>('/scrap', async (request,
     server.log.info(`Script success. Sending back media URL ${media_url}`)
     reply.status(200).send({ url: media_url, m3u8, format })
   })
+})
+
+server.post<{ Body: FromSchema<typeof ResponseBody> }>('/m3u8/mp4', async (request, reply) => {
+  let { url } = request.body
+
+  if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
+
+  url = url.replace(/\n/g, '')
+  server.log.info(`m3u8 URL ${url} received. Converting to mp4.`)
+  const fileName = Date()
+  const outputPath = `${__dirname}/media/${fileName}.mp4`
+  server.log.info(`using output path ${outputPath} for m3u8 URL ${url}`)
+  const conversion = spawn('ffmpeg', [
+    '-i',
+    url,
+    '-c',
+    'copy',
+    '-bsf:a',
+    'aac_adtstoasc',
+    outputPath
+  ])
+
+  conversion.on('exit', (code) => {
+    server.log.info(`m3u8 URL ${url} conversion finished with code ${code}`)
+    reply.status(201).send({fileName})
+  })
+})
+
+server.get<{ Params: FromSchema<typeof FileParams> }>('/download/:fileName', async (request, reply) => {
+  let { fileName } = request.params
+  
+  //fileName = fileName.concat('.mp4')
+  server.log.info(`Download request received for file name ${fileName}`)
+  const readdir = utils.promisify(fs.readdir)
+  
+  try {
+    const files = await readdir(path.join(__dirname, 'media'))
+
+    if (!files.find((f) => f === fileName)) return reply.status(404).send('File not found')
+
+    const filePath = path.join(__dirname, 'media', fileName)
+    const readfile = utils.promisify(fs.readFile)
+    const data = await readfile(filePath)
+    reply.type(getContentType(fileName))
+    reply.header('Content-Disposition', `attachment; filename=${fileName}`)
+    reply.send(data)
+    const rm = utils.promisify(fs.rm)
+    rm(filePath)
+  } catch(err) {
+    server.log.error(err)
+    reply.status(500).send('Error sending file. Try again later.')
+  }
 })
 
 const start = async () => {
