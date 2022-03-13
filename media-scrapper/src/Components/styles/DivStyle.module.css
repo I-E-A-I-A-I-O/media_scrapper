@@ -1,0 +1,7 @@
+.bottomCenterDiv {
+    position: fixed;
+    left: 50%;
+    bottom: 1px;
+    transform: translate(-50%, -50%);
+    margin: 0 auto;
+}
