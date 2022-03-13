@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import './App.css';
 import { Construction, Close } from '@mui/icons-material'
 import { LoadingCard } from './Components/LoadingCard'
 import { FormatSelection } from './Components/FormatSelection'
+import { Instructions } from './Components/Instructions'
 import { 
-  Container,
+  Paper,
   AppBar, 
   Toolbar, 
   Box, 
@@ -17,6 +18,8 @@ import {
   Collapse,
   Alert,
   IconButton,
+  ThemeProvider,
+  createTheme
 } from '@mui/material'
 
 function App() {
@@ -28,6 +31,10 @@ function App() {
   const [error, setError] = useState('')
   const [loadingText, setLoadingText] = useState('')
   const [downloadLink, setDownloadLink] = useState('')
+
+  const theme = createTheme({
+    palette: { mode: 'dark' }
+  })
 
   const showError = (err: string) => {
     setError(err)
@@ -79,7 +86,7 @@ function App() {
   }
 
   const stepHandler = () => {
-    if (step < 1) return null
+    if (step < 1) return (<Instructions />)
 
     if (step === 1) return (<LoadingCard text='Scrapping video... CNN links might take a little longer.' />)
   
@@ -93,54 +100,56 @@ function App() {
   }
 
   return (
-    <Container maxWidth='xl' sx={{ flexGrow: 1 }}>
-      <Box sx={{ flexGrow: 1 }} width={1}>
-        <AppBar position='static'>
-          <Toolbar>
-            <img width={70} src="/ed-smiley.png" alt="image" style={{ alignSelf: 'center' }} />
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Media Scrapper
-            </Typography>
-          </Toolbar>
-        </AppBar>
-      </Box>
-      <Box sx={{ width: '100%' }}>
-        <Collapse in={open}>
-          <Alert
-            severity='error'
-            action={
-              <IconButton
-                aria-label="close"
-                color="inherit"
-                size="small"
-                onClick={() => {
-                  setOpen(false);
-                }}
-              >
-                <Close />
-              </IconButton>
-            }
-            sx={{ mb: 2 }}
-          >
-            {error}
-          </Alert>
-        </Collapse>
-      </Box>
-      <Box sx={{ flexGrow: 1 }} paddingTop={1.5}>
-        <Card>
-          <CardContent>
-            <Stack direction={'row'} spacing={2}>
-              <TextField value={url} onChange={(val) => { setURL(val.target.value) }} fullWidth id="filled-basic" label="Website URL" variant="filled" />
-              <Button disabled={converting} onClick={postURL} variant='contained'>
-                scrap
-                <Construction />
-              </Button>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Box>
-      {stepHandler()}
-    </Container>
+    <ThemeProvider theme={ theme }>
+      <Paper sx={{height: '100vh', width: 1}}>
+        <Box sx={{ flexGrow: 1 }} width={1}>
+          <AppBar position='static'>
+            <Toolbar>
+              <img width={70} src="/ed-smiley.png" alt="image" style={{ alignSelf: 'center' }} />
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                Media Scrapper
+              </Typography>
+            </Toolbar>
+          </AppBar>
+        </Box>
+        <Box sx={{ width: '100%' }}>
+          <Collapse in={open}>
+            <Alert
+              severity='error'
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setOpen(false);
+                  }}
+                >
+                  <Close />
+                </IconButton>
+              }
+              sx={{ mb: 2 }}
+            >
+              {error}
+            </Alert>
+          </Collapse>
+        </Box>
+        <Box sx={{ flexGrow: 1 }} paddingTop={1.5}>
+          <Card>
+            <CardContent>
+              <Stack direction={'row'} spacing={2}>
+                <TextField value={url} onChange={(val) => { setURL(val.target.value) }} fullWidth id="filled-basic" label="Website URL" variant="filled" />
+                <Button disabled={converting} onClick={postURL} variant='contained'>
+                  scrap
+                  <Construction />
+                </Button>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Box>
+        {stepHandler()}
+      </Paper>
+    </ThemeProvider>
   );
 }
 
