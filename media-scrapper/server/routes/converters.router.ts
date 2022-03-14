@@ -77,10 +77,6 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
       '257k',
       outputPath
     ])
-
-    request.socket.on('close', () => {
-      server.log.info('XDDDDDDDDDDDDDDDDDDDDD')
-    })
   
     conversion.on('exit', async (code) => {
       server.log.info(`m3u8 URL ${url} conversion finished with code ${code}`)
