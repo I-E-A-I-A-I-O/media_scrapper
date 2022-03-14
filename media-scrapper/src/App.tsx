@@ -54,7 +54,7 @@ function App() {
         return setConverting(false)
       }
 
-      setLoadingText('Scrapping media from URL...')
+      setLoadingText('Scrapping media from URL... m3u8 formats might take longer.')
       setStep(1)
       setOpen(false)
       const response = await fetch('http://localhost:3000/scrap', {
@@ -72,7 +72,7 @@ function App() {
         setStep(2)
       }
       else {
-        const body = await response.text();
+        const body = await response.text()
         showError(body, 'error')
         setStep(0)
       }
@@ -87,13 +87,13 @@ function App() {
   const stepHandler = () => {
     if (step < 1) return (<Instructions />)
 
-    if (step === 1) return (<LoadingCard text='Scrapping video... CNN links might take a little longer.' />)
+    if (step === 1) return (<LoadingCard text={loadingText} />)
   
     if (step === 2) return (
       <FormatSelection 
         downloadLink={downloadLink}
         onLoading={() => { setConverting(true) }} 
-        onNotification={(str) => { showError(str, 'info') }} 
+        onNotification={(str) => { setConverting(false) }} 
         formats={format} />
     )
   }

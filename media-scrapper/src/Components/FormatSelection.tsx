@@ -29,6 +29,12 @@ function LoadingText() {
     )
 }
 
+function IsYoutube(url: string): boolean {
+    if (url.includes('youtube.com') || url.includes('youtu.be')) return true
+
+    return false
+}
+
 export function FormatSelection(props: FormatSelectionProps) {
     const [loading, setLoading] = useState(false)
 
@@ -38,15 +44,24 @@ export function FormatSelection(props: FormatSelectionProps) {
             return
         }
         
+        setLoading(true)
+        props.onLoading()
         let path: string
 
         if (!mp4 && props.downloadLink.includes('.mp4')) path = 'mp4/mp3'
         else if (mp4 && props.downloadLink.includes('.m3u8')) path = 'm3u8/mp4'
         else if (!mp4 && props.downloadLink.includes('.m3u8')) path = 'm3u8/mp3'
+        else if (mp4 && IsYoutube(props.downloadLink)) path = 'youtube/mp4'
+        else if (!mp4 && IsYoutube(props.downloadLink)) path = 'youtube/mp3'
         else return
         
         window.location.href = `http://localhost:3000/${path}?url=${props.downloadLink}`
         props.onNotification('Converting file... download will start shortly')
+
+        setTimeout(() => {
+            setLoading(false)
+            props.onNotification('')
+        }, 30000)
     }
 
     return (

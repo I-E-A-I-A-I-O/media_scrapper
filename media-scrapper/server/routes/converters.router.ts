@@ -7,6 +7,8 @@ import fs from 'fs'
 import utils from 'util'
 
 const MEDIA_FOLDER = path.join(__dirname, '..', 'media')
+const BASE_DIR = path.join(__dirname, '..', '..', '..')
+const VENV_SOURCE = path.join(__dirname, '..', '..', '..', 'venv', 'bin', 'python3')
 
 const getContentType = (name: string): string => {
   try {
@@ -97,6 +99,42 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
         const rm = utils.promisify(fs.rm)
         rm(outputPath)
       } catch(err) {
+        server.log.error(err)
+        reply.status(500).send('Error sending file. Try again later.')
+      }
+    })
+  })
+
+  server.get<{ Querystring: FromSchema<typeof ResponseBody> }>('/youtube/mp3', async (request, reply) => {
+    let { url } = request.query
+
+    if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
+
+    url = url.replace(/\n/g, '')
+    const pScript = spawn(VENV_SOURCE, [path.join(BASE_DIR, 'ytDownload.py'), url, 'audio'])
+    let filename = ''
+
+    pScript.stdout.on('data', (data) => {
+      filename = data.toString()
+      server.log.info(`Youtube video download from URL ${url} with MP3 format`)
+    })
+
+    pScript.on('exit', (code) => {
+      if (filename == null || filename.length === 0) {
+        server.log.warn(`Youtube download failed from ${url} using script ytDownload.py`)
+        return reply.status(500).send("Couldn't scrap media from URL. Try again later.")
+      }
+
+      try {
+        const filepath = path.join(MEDIA_FOLDER, filename)
+        const readfile = utils.promisify(fs.readFile)
+        const filedata = await readfile(filepath)
+        reply.type('audio/mp3')
+        reply.header('Content-Disposition', `attachment; filename=${filename}`)
+        reply.send(filedata)
+        const rm = utils.promisify(fs.rm)
+        rm(filepath)
+      } catch (err) {
         server.log.error(err)
         reply.status(500).send('Error sending file. Try again later.')
       }

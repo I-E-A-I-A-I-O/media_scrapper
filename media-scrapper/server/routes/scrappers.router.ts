@@ -10,6 +10,8 @@ const VENV_SOURCE = path.join(__dirname, '..', '..', '..', 'venv', 'bin', 'pytho
 const processLink = (url: string): string => {
     if (url.includes('cnn.com')) return 'cnnSearch.py'
     else if (url.includes('rfi.fr')) return 'rfiSearch.py'
+    else if (url.includes('youtube.com') || url.includes('youtu.be')) return 'skip'
+    else if (url.includes('.m3u8')) return 'skipm3u8'
   
     return ''
 }
@@ -23,6 +25,9 @@ export const scrapperRouter: FastifyPluginAsync = async (server, opts) => {
         const pythonScript = processLink(url);
       
         if (pythonScript.length === 0) return reply.status(400).send('Website not supported')
+
+        if (pythonScript.includes('skip')) 
+          return reply.status(200).send({ media_url: url, m3u8: pythonScript.includes('m3u8'), format: 'mp3&mp4' })
       
         server.log.info(`URL ${url} received. Starting script ${pythonScript}`)
         let media_url: string

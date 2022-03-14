@@ -2,14 +2,6 @@ import React from 'react'
 import styles from './styles/DivStyle.module.css'
 import { Box, Typography, Stack } from '@mui/material'
 
-const divStyle: React.CSSProperties = {
-    position: 'fixed',
-    bottom: '20px',
-    left: '50%',
-    margin: '0 auto',
-    transform: 'translate(-25%, -50%)'
-}
-
 export function Instructions() {
     return (
         <Box paddingTop={4}>
