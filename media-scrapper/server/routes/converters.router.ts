@@ -116,10 +116,11 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
 
     pScript.stdout.on('data', (data) => {
       filename = data.toString()
+      filename = filename.replace(/\n/g, '')
       server.log.info(`Youtube video download from URL ${url} with MP3 format`)
     })
 
-    pScript.on('exit', (code) => {
+    pScript.on('exit', async (code) => {
       if (filename == null || filename.length === 0) {
         server.log.warn(`Youtube download failed from ${url} using script ytDownload.py`)
         return reply.status(500).send("Couldn't scrap media from URL. Try again later.")
@@ -130,6 +131,43 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
         const readfile = utils.promisify(fs.readFile)
         const filedata = await readfile(filepath)
         reply.type('audio/mp3')
+        reply.header('Content-Disposition', `attachment; filename=${filename}`)
+        reply.send(filedata)
+        const rm = utils.promisify(fs.rm)
+        rm(filepath)
+      } catch (err) {
+        server.log.error(err)
+        reply.status(500).send('Error sending file. Try again later.')
+      }
+    })
+  })
+
+  server.get<{ Querystring: FromSchema<typeof ResponseBody> }>('/youtube/mp4', async (request, reply) => {
+    let { url } = request.query
+
+    if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
+
+    url = url.replace(/\n/g, '')
+    const pScript = spawn(VENV_SOURCE, [path.join(BASE_DIR, 'ytDownload.py'), url, 'video'])
+    let filename = ''
+
+    pScript.stdout.on('data', (data) => {
+      filename = data.toString()
+      filename = filename.replace(/\n/g, '')
+      server.log.info(`Youtube video download from URL ${url} with MP4 format`)
+    })
+
+    pScript.on('exit', async (code) => {
+      if (filename == null || filename.length === 0) {
+        server.log.warn(`Youtube download failed from ${url} using script ytDownload.py`)
+        return reply.status(500).send("Couldn't scrap media from URL. Try again later.")
+      }
+
+      try {
+        const filepath = path.join(MEDIA_FOLDER, filename)
+        const readfile = utils.promisify(fs.readFile)
+        const filedata = await readfile(filepath)
+        reply.type('video/mp4')
         reply.header('Content-Disposition', `attachment; filename=${filename}`)
         reply.send(filedata)
         const rm = utils.promisify(fs.rm)
