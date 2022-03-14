@@ -3,7 +3,6 @@ import fstatic from 'fastify-static'
 import path from 'path'
 import { scrapperRouter } from './routes/scrappers.router'
 import { convertersRouter } from './routes/converters.router'
-import { downloadRouter } from './routes/download.router'
 
 const buildDir = path.join(__dirname, '..', 'build')
 const server: FastifyInstance = Fastify({ logger: true });
@@ -11,7 +10,6 @@ server.register(fstatic, { root: buildDir })
 
 server.register(scrapperRouter, { prefix: '/' })
 server.register(convertersRouter, { prefix: '/' })
-server.register(downloadRouter, { prefix: '/download' })
 
 const start = async () => {
   try {

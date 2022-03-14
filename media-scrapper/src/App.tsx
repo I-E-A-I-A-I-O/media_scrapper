@@ -19,7 +19,8 @@ import {
   Alert,
   IconButton,
   ThemeProvider,
-  createTheme
+  createTheme,
+  AlertColor
 } from '@mui/material'
 
 function App() {
@@ -31,13 +32,15 @@ function App() {
   const [error, setError] = useState('')
   const [loadingText, setLoadingText] = useState('')
   const [downloadLink, setDownloadLink] = useState('')
+  const [severity, setSeverity] = useState<AlertColor>('success')
 
   const theme = createTheme({
     palette: { mode: 'dark' }
   })
 
-  const showError = (err: string) => {
+  const showError = (err: string, type: AlertColor) => {
     setError(err)
+    setSeverity(type)
     setOpen(true)
   }
 
@@ -47,7 +50,7 @@ function App() {
 
       if (!url || url.length === 0) {
         setStep(0)
-        showError('No URL provided')
+        showError('No URL provided', 'error')
         return setConverting(false)
       }
 
@@ -70,7 +73,7 @@ function App() {
       }
       else {
         const body = await response.text();
-        showError(body)
+        showError(body, 'error')
         setStep(0)
       }
 
@@ -79,10 +82,6 @@ function App() {
       console.error(err)
       setConverting(false)
     }
-  }
-
-  const restart = () => {
-    setConverting(false)
   }
 
   const stepHandler = () => {
@@ -94,7 +93,7 @@ function App() {
       <FormatSelection 
         downloadLink={downloadLink}
         onLoading={() => { setConverting(true) }} 
-        onCompleted={() => { restart() }} 
+        onNotification={(str) => { showError(str, 'info') }} 
         formats={format} />
     )
   }
@@ -115,7 +114,7 @@ function App() {
         <Box sx={{ width: '100%' }}>
           <Collapse in={open}>
             <Alert
-              severity='error'
+              severity={severity}
               action={
                 <IconButton
                   aria-label="close"

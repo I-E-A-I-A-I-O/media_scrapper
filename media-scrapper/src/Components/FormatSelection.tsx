@@ -10,7 +10,7 @@ import {
 } from '@mui/material'
 
 interface FormatSelectionProps {
-    onCompleted: () => void
+    onNotification: (text: string) => void
     onLoading: () => void
     formats: 'mp3' | 'mp3&mp4'
     downloadLink: string
@@ -38,33 +38,15 @@ export function FormatSelection(props: FormatSelectionProps) {
             return
         }
         
-        setLoading(true)
-        props.onLoading()
         let path: string
 
         if (!mp4 && props.downloadLink.includes('.mp4')) path = 'mp4/mp3'
         else if (mp4 && props.downloadLink.includes('.m3u8')) path = 'm3u8/mp4'
         else if (!mp4 && props.downloadLink.includes('.m3u8')) path = 'm3u8/mp3'
-        else {
-            setLoading(false)
-            return props.onCompleted()
-        }
-
-        const response = await fetch(`http://localhost:3000/${path}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ url: props.downloadLink })
-        })
-
-        if (response.ok) {
-            const body: { fileName: string } = await response.json()
-            window.location.href = `http://localhost:3000/download/${body.fileName}.${path.split('/')[1]}`
-        }
-
-        setLoading(false)
-        props.onCompleted()
+        else return
+        
+        window.location.href = `http://localhost:3000/${path}?url=${props.downloadLink}`
+        props.onNotification('Converting file... download will start shortly')
     }
 
     return (
