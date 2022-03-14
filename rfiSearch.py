@@ -11,8 +11,11 @@ import sys
 def get_video_src(base: str):
     caps = DesiredCapabilities.CHROME
     caps['goog:loggingPrefs'] = {'performance': 'ALL'}
+    caps['chromeOptions'] = {
+        "args": ["--headless", "--disable-gpu", "--dump-dom"]
+    }
     s = ChromeService(ChromeDriverManager().install())
-    wd = webdriver.Chrome(service=s, desired_capabilities=caps)
+    wd = webdriver.Chrome(service=s, desired_capabilities=caps, )
     wd.get(base)
 
     try:
