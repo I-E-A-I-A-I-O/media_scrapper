@@ -7,8 +7,8 @@ import fs from 'fs'
 import utils from 'util'
 
 const MEDIA_FOLDER = path.join(__dirname, '..', 'media')
-const BASE_DIR = path.join(__dirname, '..', '..', '..')
-const VENV_SOURCE = path.join(__dirname, '..', '..', '..', 'venv', 'bin', 'python3')
+const BASE_DIR = path.join(__dirname, '..', '..')
+const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
 
 const getContentType = (name: string): string => {
   try {

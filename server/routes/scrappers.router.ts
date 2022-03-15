@@ -4,8 +4,8 @@ import { ResponseBody } from '../types/body'
 import { FromSchema } from 'json-schema-to-ts'
 import path from 'path'
 
-const BASE_DIR = path.join(__dirname, '..', '..', '..')
-const VENV_SOURCE = path.join(__dirname, '..', '..', '..', 'venv', 'bin', 'python3')
+const BASE_DIR = path.join(__dirname, '..', '..')
+const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
   
 const processLink = (url: string): string => {
     if (url.includes('cnn.com')) return 'cnnSearch.py'
