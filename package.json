@@ -27,8 +27,7 @@
     "ts-node": "^10.7.0"
   },
   "scripts": {
-    "prestart": "npm run build-server",
-    "start": "npm run start-server",
+    "start": "npm run server-dev",
     "react-dev": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
