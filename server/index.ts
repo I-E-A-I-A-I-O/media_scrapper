@@ -11,11 +11,12 @@ server.register(fstatic, { root: buildDir })
 server.register(scrapperRouter, { prefix: '/' })
 server.register(convertersRouter, { prefix: '/' })
 
-const start = async () => {
+const start = () => {
   try {
     const PORT = process.env.PORT || 3000
-    await server.listen(PORT)
-    server.log.info(`Server running in port ${PORT}`)
+    server.listen(PORT).then(() => {
+      server.log.info(`Server running in port ${PORT}`)
+    })
   } catch (err) {
     server.log.error(err)
     process.exit(1)
