@@ -8,7 +8,7 @@ import utils from 'util'
 
 const MEDIA_FOLDER = path.join(__dirname, '..', 'media')
 const BASE_DIR = path.join(__dirname, '..', '..')
-const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
+//const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
 
 const getContentType = (name: string): string => {
   try {
@@ -111,7 +111,7 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
     if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
 
     url = url.replace(/\n/g, '')
-    const pScript = spawn(VENV_SOURCE, [path.join(BASE_DIR, 'ytDownload.py'), url, 'audio'])
+    const pScript = spawn(/*VENV_SOURCE*/ 'python3', [path.join(BASE_DIR, 'ytDownload.py'), url, 'audio'])
     let filename = ''
 
     pScript.stdout.on('data', (data) => {
@@ -148,7 +148,7 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
     if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
 
     url = url.replace(/\n/g, '')
-    const pScript = spawn(VENV_SOURCE, [path.join(BASE_DIR, 'ytDownload.py'), url, 'video'])
+    const pScript = spawn(/*VENV_SOURCE*/ 'python3', [path.join(BASE_DIR, 'ytDownload.py'), url, 'video'])
     let filename = ''
 
     pScript.stdout.on('data', (data) => {
