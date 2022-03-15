@@ -55,7 +55,7 @@ export function FormatSelection(props: FormatSelectionProps) {
         else if (!mp4 && IsYoutube(props.downloadLink)) path = 'youtube/mp3'
         else return
         
-        window.location.href = `http://localhost:3000/${path}?url=${props.downloadLink}`
+        window.location.href = `https://media-scrapper.herokuapp.com/${path}?url=${props.downloadLink}`
         props.onNotification('Converting file... download will start shortly')
 
         setTimeout(() => {

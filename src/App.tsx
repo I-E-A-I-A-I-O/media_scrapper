@@ -57,7 +57,7 @@ function App() {
       setLoadingText('Scrapping media from URL... m3u8 formats might take longer.')
       setStep(1)
       setOpen(false)
-      const response = await fetch('http://localhost:3000/scrap', {
+      const response = await fetch('https://media-scrapper.herokuapp.com/scrap', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
