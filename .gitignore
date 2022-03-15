@@ -24,3 +24,4 @@ node_modules/
 venv/
 .idea/
 geckodriver.log
+dist/
