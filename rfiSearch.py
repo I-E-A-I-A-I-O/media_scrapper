@@ -6,16 +6,17 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import sys
-
+import os
 
 def get_video_src(base: str):
     caps = DesiredCapabilities.CHROME
+    caps['binary_location'] = os.environ.get("GOOGLE_CHROME_BIN")
     caps['goog:loggingPrefs'] = {'performance': 'ALL'}
     caps['chromeOptions'] = {
-        "args": ["--headless", "--disable-gpu", "--dump-dom", "--no-sandbox"]
+        "args": ["--headless", "--disable-dev-shm-usage", "--no-sandbox"]
     }
     s = ChromeService(ChromeDriverManager().install())
-    wd = webdriver.Chrome(service=s, desired_capabilities=caps, )
+    wd = webdriver.Chrome(service=s, desired_capabilities=caps, executable_path=os.environ.get("CHROMEDRIVER_PATH"))
     wd.get(base)
 
     try:
