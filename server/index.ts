@@ -14,7 +14,7 @@ server.register(convertersRouter, { prefix: '/' })
 const start = () => {
   try {
     const PORT = process.env.PORT || 3000
-    server.listen(PORT).then(() => {
+    server.listen(PORT, '0.0.0.0').then(() => {
       server.log.info(`Server running in port ${PORT}`)
     })
   } catch (err) {
