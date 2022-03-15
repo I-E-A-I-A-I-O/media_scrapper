@@ -5,7 +5,7 @@ import { FromSchema } from 'json-schema-to-ts'
 import path from 'path'
 
 const BASE_DIR = path.join(__dirname, '..', '..')
-const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
+//const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
   
 const processLink = (url: string): string => {
     if (url.includes('cnn.com')) return 'cnnSearch.py'
@@ -31,7 +31,7 @@ export const scrapperRouter: FastifyPluginAsync = async (server, opts) => {
       
         server.log.info(`URL ${url} received. Starting script ${pythonScript}`)
         let media_url: string
-        const pScript = spawn(VENV_SOURCE, [path.join(BASE_DIR, pythonScript), url])
+        const pScript = spawn(/*VENV_SOURCE*/ 'python3', [path.join(BASE_DIR, pythonScript), url])
       
         pScript.stdout.on('data', (data) => {
           media_url = data.toString()
