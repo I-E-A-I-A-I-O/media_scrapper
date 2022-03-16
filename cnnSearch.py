@@ -31,10 +31,11 @@ def get_video_src(base: str):
     
     try:
         wd.get(base)
-        WebDriverWait(wd, 70).until(EC.visibility_of_element_located((By.XPATH, "//*[@title = \"Play\"]")))
+        WebDriverWait(wd, 180).until(EC.visibility_of_element_located((By.XPATH, "//*[@title = \"Play\"]")))
     except:
         pass
     finally:
+        wd.execute_script("window.scrollBy(0, 250)")
         try:
             button_element = wd.find_element(By.XPATH, primary)
             button_element.click()
