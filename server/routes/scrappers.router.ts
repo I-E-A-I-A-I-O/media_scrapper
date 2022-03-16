@@ -56,7 +56,7 @@ export const scrapperRouter: FastifyPluginAsync = async (server, opts) => {
     if (slowScript) {
       await fs.ensureFile(path.join(MEDIA_FOLDER, `${requestId}.txt`))
       await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'pending')
-      reply.status(202).send(requestId)
+      reply.status(202).send(`${requestId}.txt`)
     }
 
     server.log.info(`URL ${url} received. Starting script ${pythonScript}`)

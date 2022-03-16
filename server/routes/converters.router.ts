@@ -80,7 +80,7 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
     const requestId = uuidv4()
     await fs.ensureFile(path.join(MEDIA_FOLDER, `${requestId}.txt`))
     await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'pending')
-    reply.status(202).send(requestId)
+    reply.status(202).send(`${requestId}.txt`)
     url = url.replace(/\n/g, '')
     server.log.info(`m3u8 URL ${url} received. Converting to mp3.`)
     const fileName = Date()
