@@ -63,7 +63,7 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
 
     if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
 
-    const data = await fs.readFile(`../media/${url}`, { encoding: 'utf8' })
+    const data = await fs.readFile(path.join(MEDIA_FOLDER, url), { encoding: 'utf8' })
 
     if (data === 'pending') return reply.status(200).send('pending')
     else if (data === 'fail') return reply.status(500).send('fail')
