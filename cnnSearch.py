@@ -28,18 +28,22 @@ def get_video_src(base: str):
     }
     s = ChromeService(ChromeDriverManager().install())
     wd = webdriver.Chrome(service=s, desired_capabilities=caps, executable_path=os.environ.get("CHROMEDRIVER_PATH"))
-    wd.get(base)
-    WebDriverWait(wd, 70).until(EC.visibility_of_element_located((By.XPATH, "//*[@title = \"Play\"]")))
     
     try:
-        button_element = wd.find_element(By.XPATH, primary)
-        button_element.click()
+        wd.get(base)
+        WebDriverWait(wd, 70).until(EC.visibility_of_element_located((By.XPATH, "//*[@title = \"Play\"]")))
     except:
+        pass
+    finally:
         try:
-            button_element = wd.find_element(By.XPATH, secondary)
+            button_element = wd.find_element(By.XPATH, primary)
             button_element.click()
         except:
-            sys.exit("Couldn't find play button")
+            try:
+                button_element = wd.find_element(By.XPATH, secondary)
+                button_element.click()
+            except:
+                sys.exit("Couldn't find play button")
 
 
     time.sleep(15)
