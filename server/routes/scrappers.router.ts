@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs-extra'
 
 const BASE_DIR = path.join(__dirname, '..', '..')
+const MEDIA_FOLDER = path.join(__dirname, '..', 'media')
 //const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
   
 const processLink = (url: string): string => {
@@ -30,7 +31,7 @@ export const scrapperRouter: FastifyPluginAsync = async (server, opts) => {
   
     if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
 
-    const data = await fs.readFile(`../media/${url}`, { encoding: 'utf8' })
+    const data = await fs.readFile(path.join(MEDIA_FOLDER, url), { encoding: 'utf8' })
 
     if (data === 'pending') return reply.status(200).send('pending')
     else if (data === 'fail') return reply.status(500).send('fail')
@@ -53,8 +54,8 @@ export const scrapperRouter: FastifyPluginAsync = async (server, opts) => {
     const requestId = uuidv4()
 
     if (slowScript) {
-      await fs.ensureFile(`../media/${requestId}.txt`)
-      await fs.outputFile(`../media/${requestId}.txt`, 'pending')
+      await fs.ensureFile(path.join(MEDIA_FOLDER, `${requestId}.txt`))
+      await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'pending')
       reply.status(202).send(requestId)
     }
 
@@ -74,7 +75,7 @@ export const scrapperRouter: FastifyPluginAsync = async (server, opts) => {
         if (!slowScript)
           return reply.status(500).send("Couldn't scrap media from URL. Try again later.")
         else
-          return await fs.outputFile(`../media/${requestId}`, 'fail')
+          return await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'fail')
       }
       
       const m3u8 = media_url.includes('.m3u8')
@@ -89,7 +90,7 @@ export const scrapperRouter: FastifyPluginAsync = async (server, opts) => {
       if (!slowScript)
         reply.status(200).send({ url: media_url, m3u8, format })
       else
-        await fs.outputFile(`../media/${requestId}`, media_url)
+        await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), media_url)
     })
   })
 }

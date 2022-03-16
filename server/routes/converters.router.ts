@@ -78,8 +78,8 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
     if (!url.includes('.m3u8')) return reply.status(400).send('Master m3u8 expected')
 
     const requestId = uuidv4()
-    await fs.ensureFile(`../media/${requestId}.txt`)
-    await fs.outputFile(`../media/${requestId}.txt`, 'pending')
+    await fs.ensureFile(path.join(MEDIA_FOLDER, `${requestId}.txt`))
+    await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'pending')
     reply.status(202).send(requestId)
     url = url.replace(/\n/g, '')
     server.log.info(`m3u8 URL ${url} received. Converting to mp3.`)
@@ -100,11 +100,11 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
       server.log.info(`m3u8 URL ${url} conversion finished with code ${code}`)
       
       try {
-        await fs.outputFile(`../media/${requestId}`, `${fileName}.mp3`)
+        await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), `${fileName}.mp3`)
       } catch(err) {
         server.log.error(err)
         fs.rm(outputPath)
-        await fs.outputFile(`../media/${requestId}`, 'fail')
+        await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'fail')
       }
     })
   })
