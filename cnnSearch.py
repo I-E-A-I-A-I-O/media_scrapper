@@ -31,7 +31,7 @@ def get_video_src(base: str):
     
     try:
         wd.get(base)
-        wd.execute_script("window.scrollBy(0, 250)")
+        #wd.execute_script("window.scrollBy(0, 250)")
         WebDriverWait(wd, 180).until(EC.visibility_of_element_located((By.XPATH, "//*[@title = \"Play\"]")))
     except:
         pass
