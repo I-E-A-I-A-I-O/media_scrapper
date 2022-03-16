@@ -27,6 +27,11 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
   
     if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
     if (!url.includes('.m3u8')) return reply.status(400).send('Master m3u8 expected')
+    
+    const requestId = uuidv4()
+    await fs.ensureFile(path.join(MEDIA_FOLDER, `${requestId}.txt`))
+    await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'pending')
+    reply.status(202).send(`${requestId}.txt`)
     url = url.replace(/\n/g, '')
     server.log.info(`m3u8 URL ${url} received. Converting to mp4.`)
     const fileName = Date()
@@ -46,14 +51,11 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
       server.log.info(`m3u8 URL ${url} conversion finished with code ${code}`)
       
       try {
-        const data = await fs.readFile(outputPath)
-        reply.type(getContentType(fileName))
-        reply.header('Content-Disposition', `attachment; filename=${fileName}`)
-        reply.send(data)
-        fs.rm(outputPath)
+        await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), `${fileName}.mp4`)
       } catch(err) {
         server.log.error(err)
-        reply.status(500).send('Error sending file. Try again later.')
+        fs.rm(outputPath)
+        await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'fail')
       }
     })
   })
