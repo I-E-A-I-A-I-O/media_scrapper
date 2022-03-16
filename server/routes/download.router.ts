@@ -21,7 +21,7 @@ export const downloadRouter: FastifyPluginAsync = async (server, opts) => {
         
         try {
             const readfile = utils.promisify(fs.readFile)
-            const data = readfile(fileName)
+            const data = readfile(`../media/${fileName}`)
             reply.type(getContentType(fileName))
             reply.header('Content-Disposition', `attachment; filename=${fileName}`)
             reply.send(data)

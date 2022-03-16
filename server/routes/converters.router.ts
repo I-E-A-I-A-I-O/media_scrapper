@@ -84,7 +84,7 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
     const writeFile = utils.promisify(fs.writeFile)
     const requestId = uuidv4()
     await writeFile(`../media/${requestId}`, 'pending')
-    reply.status(201).send(requestId)
+    reply.status(202).send(requestId)
     url = url.replace(/\n/g, '')
     server.log.info(`m3u8 URL ${url} received. Converting to mp3.`)
     const fileName = Date()
@@ -104,7 +104,7 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
       server.log.info(`m3u8 URL ${url} conversion finished with code ${code}`)
       
       try {
-        writeFile(`../media/${requestId}`, outputPath)
+        writeFile(`../media/${requestId}`, `${fileName}.mp3`)
       } catch(err) {
         server.log.error(err)
         const rm = utils.promisify(fs.rm)

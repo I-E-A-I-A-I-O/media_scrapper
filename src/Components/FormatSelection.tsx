@@ -38,6 +38,34 @@ function IsYoutube(url: string): boolean {
 export function FormatSelection(props: FormatSelectionProps) {
     const [loading, setLoading] = useState(false)
 
+    const conversionStatCallback = async (timerId: NodeJS.Timer, requestId: string) => {
+        try {
+          const response = await fetch(
+            `https://media-scrapper.herokuapp.com/conversion/stat?url=${requestId}`, {
+              method: 'GET'
+            })
+
+          const message = await response.text()
+
+          if (!response.ok) {
+            props.onNotification('Error converting file. Try again later.')
+            setLoading(false)
+            clearInterval(timerId)
+          } else {
+            if (message !== 'pending') {
+                window.location.href = `https://media-scrapper.herokuapp.com/download/${message}`
+                props.onNotification('Starting download...')
+                setLoading(false)
+                clearInterval(timerId)
+            }
+          }
+        } catch {
+            props.onNotification('Error converting file. Try again later.')
+            setLoading(false)
+            clearInterval(timerId)
+        }
+    }
+
     const download = async (mp4: boolean) => {
         if ((mp4 && props.downloadLink.includes('.mp4')) || (!mp4 && props.downloadLink.includes('.mp3'))) {
             window.location.href = props.downloadLink
@@ -55,13 +83,27 @@ export function FormatSelection(props: FormatSelectionProps) {
         else if (!mp4 && IsYoutube(props.downloadLink)) path = 'youtube/mp3'
         else return
         
-        window.location.href = `https://media-scrapper.herokuapp.com/${path}?url=${props.downloadLink}`
-        props.onNotification('Converting file... download will start shortly')
-
-        setTimeout(() => {
-            setLoading(false)
-            props.onNotification('')
-        }, 30000)
+        if (path.includes('m3u8')) {
+            try {
+                const request = await fetch(`https://media-scrapper.herokuapp.com/${path}?url=${props.downloadLink}`)
+                const requestId = await request.text()
+                const conversionStat = setInterval(async () => {
+                    await conversionStatCallback(conversionStat, requestId)
+                }, 5000)
+            } catch {
+                setLoading(false)
+                props.onNotification('Error converting file. Try again later.')
+            }
+        }
+        else {
+            window.location.href = `https://media-scrapper.herokuapp.com/${path}?url=${props.downloadLink}`
+            props.onNotification('Converting file... download will start shortly')
+    
+            setTimeout(() => {
+                setLoading(false)
+                props.onNotification('')
+            }, 30000)
+        }
     }
 
     return (

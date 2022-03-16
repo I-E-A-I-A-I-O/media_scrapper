@@ -44,6 +44,37 @@ function App() {
     setOpen(true)
   }
 
+  const conversionStatCallback = async (timerId: NodeJS.Timer, requestId: string) => {
+    try {
+      const response = await fetch(
+        `https://media-scrapper.herokuapp.com/scrap/stat?url=${requestId}`, {
+          method: 'GET'
+        })
+
+      const message = await response.text()
+
+      if (!response.ok) {
+        showError('Error converting file. Try again later.', 'error')
+        setStep(2)
+        setConverting(false)
+        clearInterval(timerId)
+      } else {
+        if (message !== 'pending') {
+          setFormat('mp3&mp4')
+          setDownloadLink(message)
+          setStep(2)
+          setConverting(false)
+          clearInterval(timerId)
+        }
+      }
+    } catch {
+      showError('Error converting file. Try again later.', 'error')
+      setStep(2)
+      setConverting(false)
+      clearInterval(timerId)
+    }
+  }
+
   const postURL = async () => {
     try {
       setConverting(true)
@@ -65,19 +96,26 @@ function App() {
         body: JSON.stringify({ url })
       })
 
-      if (response.ok) {
+      if (response.status === 200) {
         const body: { url: string, m3u8: boolean, format: 'mp3' | 'mp3&mp4' } = await response.json()
         setFormat(body.format)
         setDownloadLink(body.url)
         setStep(2)
+        setConverting(false)
+      }
+      else if (response.status === 202) {
+        const requestId = await response.text()
+        const conversionStat = setInterval(async () => {
+          await conversionStatCallback(conversionStat, requestId)
+        }, 5000)
       }
       else {
         const body = await response.text()
         showError(body, 'error')
         setStep(0)
+        setConverting(false)
       }
 
-      setConverting(false)
     } catch (err) {
       console.error(err)
       setConverting(false)
