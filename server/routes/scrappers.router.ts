@@ -56,7 +56,7 @@ export const scrapperRouter: FastifyPluginAsync = async (server, opts) => {
     const requestId = uuidv4()
 
     if (slowScript) {
-      await writeFile(`../media/${requestId}`, 'pending')
+      await writeFile(`../media/${requestId}.txt`, 'pending')
       reply.status(202).send(requestId)
     }
 
