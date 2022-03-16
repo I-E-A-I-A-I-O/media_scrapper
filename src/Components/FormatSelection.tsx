@@ -35,7 +35,7 @@ function IsYoutube(url: string): boolean {
     return false
 }
 
-const HOST = 'https://media-scrapper.vercel.app'
+const HOST = 'https://mediascrapper.ninja'
 
 export function FormatSelection(props: FormatSelectionProps) {
     const [loading, setLoading] = useState(false)

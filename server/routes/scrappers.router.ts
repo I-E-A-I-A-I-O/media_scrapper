@@ -8,7 +8,7 @@ import fs from 'fs-extra'
 
 const BASE_DIR = path.join(__dirname, '..', '..')
 const MEDIA_FOLDER = path.join(__dirname, '..', 'media')
-//const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
+const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
   
 const processLink = (url: string): string => {
   if (url.includes('cnn.com')) return 'cnnSearch.py'

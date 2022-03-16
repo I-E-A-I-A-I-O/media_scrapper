@@ -34,7 +34,7 @@ function App() {
   const [downloadLink, setDownloadLink] = useState('')
   const [severity, setSeverity] = useState<AlertColor>('success')
 
-  const HOST = 'https://media-scrapper.vercel.app'
+  const HOST = 'https://mediascrapper.ninja'
 
   const theme = createTheme({
     palette: { mode: 'dark' }

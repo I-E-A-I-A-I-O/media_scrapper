@@ -6,7 +6,7 @@ import { convertersRouter } from './routes/converters.router'
 import { downloadRouter } from './routes/download.router'
 import FastifyHelmet from 'fastify-helmet'
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4180;
 const buildDir = path.join(__dirname, '..', 'build')
 const server: FastifyInstance = Fastify({ logger: true });
 server.register(FastifyHelmet, { global: true })
@@ -15,9 +15,13 @@ server.register(downloadRouter, { prefix: '/download' })
 server.register(scrapperRouter, { prefix: '/' })
 server.register(convertersRouter, { prefix: '/' })
 
+server.get('/', async (request, reply) => {
+  reply.sendFile('index.html')
+})
+
 const start = () => {
   try {
-    server.listen(PORT, '0.0.0.0').then(() => {
+    server.listen(PORT).then(() => {
       server.log.info(`Server running in port ${PORT}`)
     })
   } catch (err) {
