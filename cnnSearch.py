@@ -27,7 +27,7 @@ def get_video_src(base: str):
     caps['binary_location'] = os.environ.get("GOOGLE_CHROME_BIN")
     caps['goog:loggingPrefs'] = {'performance': 'ALL'}
     caps['chromeOptions'] = {
-        "args": ["--disable-dev-shm-usage", "--no-sandbox", "--disable-gpu", "--window-size=1920,1080"]
+        "args": ["--disable-dev-shm-usage", "--no-sandbox", "--disable-gpu", "--window-size=1366,768"]
     }
     s = ChromeService(ChromeDriverManager().install())
     wd = webdriver.Chrome(service=s, desired_capabilities=caps, executable_path=os.environ.get("CHROMEDRIVER_PATH"))
