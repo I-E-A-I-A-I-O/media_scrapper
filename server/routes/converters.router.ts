@@ -135,7 +135,7 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
         const filedata = await fs.readFile(filepath)
         reply.type('audio/mp3')
         reply.header('Content-Disposition', `attachment; filename=${filename}`)
-        reply.send(filedata)
+        await reply.send(filedata)
         fs.rm(filepath)
       } catch (err) {
         server.log.error(err)
