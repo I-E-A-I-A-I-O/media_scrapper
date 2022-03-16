@@ -28,7 +28,8 @@ def get_video_src(base: str):
     }
     s = ChromeService(ChromeDriverManager().install())
     wd = webdriver.Chrome(service=s, desired_capabilities=caps, executable_path=os.environ.get("CHROMEDRIVER_PATH"))
-    
+    wd.set_window_size(1920, 1080)
+
     try:
         wd.get(base)
         #wd.execute_script("window.scrollBy(0, 250)")
