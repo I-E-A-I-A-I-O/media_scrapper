@@ -5,6 +5,7 @@ import { spawn } from 'child_process'
 import path from 'path'
 import fs from 'fs'
 import utils from 'util'
+import { v4 as uuidv4 } from 'uuid'
 
 const MEDIA_FOLDER = path.join(__dirname, '..', 'media')
 const BASE_DIR = path.join(__dirname, '..', '..')
@@ -59,12 +60,31 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
       }
     })
   })
-    
+  
+  server.get<{ Querystring: FromSchema<typeof ResponseBody> }>('/conversion/stat', async (request, reply) => {
+    let { url } = request.query
+
+    if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
+
+    const readFile = utils.promisify(fs.readFile)
+    const data = await readFile(`../media/${url}`, { encoding: 'utf8' })
+
+    if (data === 'pending') return reply.status(200).send('pending')
+    else if (data === 'fail') return reply.status(500).send('fail')
+
+    reply.status(200).send(data)
+  })
+
   server.get<{ Querystring: FromSchema<typeof ResponseBody> }>('/m3u8/mp3', async (request, reply) => {
     let { url } = request.query
   
     if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
     if (!url.includes('.m3u8')) return reply.status(400).send('Master m3u8 expected')
+
+    const writeFile = utils.promisify(fs.writeFile)
+    const requestId = uuidv4()
+    await writeFile(`../media/${requestId}`, 'pending')
+    reply.status(201).send(requestId)
     url = url.replace(/\n/g, '')
     server.log.info(`m3u8 URL ${url} received. Converting to mp3.`)
     const fileName = Date()
@@ -84,23 +104,12 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
       server.log.info(`m3u8 URL ${url} conversion finished with code ${code}`)
       
       try {
-
-        if (request.socket.destroyed) {
-          const rm = utils.promisify(fs.rm)
-          await rm(outputPath)
-          return
-        }
-
-        const readfile = utils.promisify(fs.readFile)
-        const data = await readfile(outputPath)
-        reply.type(getContentType(fileName))
-        reply.header('Content-Disposition', `attachment; filename=${fileName}`)
-        reply.send(data)
-        const rm = utils.promisify(fs.rm)
-        rm(outputPath)
+        writeFile(`../media/${requestId}`, outputPath)
       } catch(err) {
         server.log.error(err)
-        reply.status(500).send('Error sending file. Try again later.')
+        const rm = utils.promisify(fs.rm)
+        rm(outputPath)
+        writeFile(`../media/${requestId}`, 'fail')
       }
     })
   })
