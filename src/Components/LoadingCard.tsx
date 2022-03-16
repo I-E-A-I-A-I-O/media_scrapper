@@ -16,7 +16,7 @@ export function LoadingCard(props: LoadingCardProps) {
       <Box sx={{ flexGrow: 1 }} paddingTop={1.5}>
         <Paper>
           <Stack spacing={1}>
-            <img width={70} src="/ed-smiley.png" alt="image" style={{ alignSelf: 'center' }} />
+            <img width={70} src="/ed-smiley.png" alt="logo" style={{ alignSelf: 'center' }} />
             <Typography variant='subtitle2' style={{ alignSelf: 'center' }}>
               {props.text}
             </Typography>

@@ -7,7 +7,6 @@ import { downloadRouter } from './routes/download.router'
 import FastifyHelmet from 'fastify-helmet'
 
 const PORT = process.env.PORT || 3000;
-
 const buildDir = path.join(__dirname, '..', 'build')
 const server: FastifyInstance = Fastify({ logger: true });
 server.register(FastifyHelmet, { global: true })
