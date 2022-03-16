@@ -25,8 +25,8 @@ export const downloadRouter: FastifyPluginAsync = async (server, opts) => {
             const data = await fs.readFile(path.join(MEDIA_FOLDER, fileName))
             reply.type(getContentType(fileName))
             reply.header('Content-Disposition', `attachment; filename=${fileName}`)
-            await reply.send(data)
-            fs.rm(fileName)
+            reply.send(data)
+            //fs.rm(fileName)
         } catch (err) {
             fs.rm(fileName)
             reply.status(500).send('Error reading file')
