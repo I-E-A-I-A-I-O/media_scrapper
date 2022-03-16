@@ -1,3 +1,4 @@
+from pyvirtualdisplay.display import Display
 from seleniumwire import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -20,6 +21,8 @@ def get_video_src(base: str):
         primary = "//*[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw cnBpEa\"]"
         secondary = "//*[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw iCGaIi\"]"
 
+    myDisplay = Display(visible=True, size=(1920, 1080))
+    myDisplay.start()
     caps = DesiredCapabilities.CHROME
     caps['binary_location'] = os.environ.get("GOOGLE_CHROME_BIN")
     caps['goog:loggingPrefs'] = {'performance': 'ALL'}
@@ -28,7 +31,6 @@ def get_video_src(base: str):
     }
     s = ChromeService(ChromeDriverManager().install())
     wd = webdriver.Chrome(service=s, desired_capabilities=caps, executable_path=os.environ.get("CHROMEDRIVER_PATH"))
-    wd.set_window_size(1920, 1080)
 
     try:
         wd.get(base)
@@ -45,6 +47,7 @@ def get_video_src(base: str):
                 button_element = wd.find_element(By.XPATH, secondary)
                 button_element.click()
             except:
+                myDisplay.stop()
                 sys.exit("Couldn't find play button")
 
 
@@ -64,6 +67,7 @@ def get_video_src(base: str):
         time.sleep(2)
 
     wd.quit()
+    myDisplay.stop()
     return m3u8_url
 
 
