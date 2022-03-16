@@ -35,13 +35,15 @@ function IsYoutube(url: string): boolean {
     return false
 }
 
+const HOST = 'https://media-scrapper.vercel.app'
+
 export function FormatSelection(props: FormatSelectionProps) {
     const [loading, setLoading] = useState(false)
 
     const conversionStatCallback = async (timerId: NodeJS.Timer, requestId: string) => {
         try {
           const response = await fetch(
-            `https://media-scrapper.herokuapp.com/conversion/stat?url=${requestId}`, {
+            `${HOST}/conversion/stat?url=${requestId}`, {
               method: 'GET'
             })
 
@@ -53,7 +55,7 @@ export function FormatSelection(props: FormatSelectionProps) {
             clearInterval(timerId)
           } else {
             if (message !== 'pending') {
-                window.location.href = `https://media-scrapper.herokuapp.com/download/${message}`
+                window.location.href = `${HOST}/download/${message}`
                 props.onNotification('Starting download...')
                 setLoading(false)
                 clearInterval(timerId)

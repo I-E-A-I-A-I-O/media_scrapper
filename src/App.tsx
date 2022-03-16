@@ -34,6 +34,8 @@ function App() {
   const [downloadLink, setDownloadLink] = useState('')
   const [severity, setSeverity] = useState<AlertColor>('success')
 
+  const HOST = 'https://media-scrapper.vercel.app'
+
   const theme = createTheme({
     palette: { mode: 'dark' }
   })
@@ -47,7 +49,7 @@ function App() {
   const conversionStatCallback = async (timerId: NodeJS.Timer, requestId: string) => {
     try {
       const response = await fetch(
-        `https://media-scrapper.herokuapp.com/scrap/stat?url=${requestId}`, {
+        `${HOST}/scrap/stat?url=${requestId}`, {
           method: 'GET'
         })
 
@@ -88,7 +90,7 @@ function App() {
       setLoadingText('Scrapping media from URL... m3u8 formats might take longer.')
       setStep(1)
       setOpen(false)
-      const response = await fetch('https://media-scrapper.herokuapp.com/scrap', {
+      const response = await fetch(`${HOST}/scrap`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
