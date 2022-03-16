@@ -4,8 +4,7 @@ import { ResponseBody } from '../types/body'
 import { FromSchema } from 'json-schema-to-ts'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
-import utils from 'util'
-import fs from 'fs'
+import fs from 'fs-extra'
 
 const BASE_DIR = path.join(__dirname, '..', '..')
 //const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
@@ -31,8 +30,7 @@ export const scrapperRouter: FastifyPluginAsync = async (server, opts) => {
   
     if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
 
-    const readFile = utils.promisify(fs.readFile)
-    const data = await readFile(`../media/${url}`, { encoding: 'utf8' })
+    const data = await fs.readFile(`../media/${url}`, { encoding: 'utf8' })
 
     if (data === 'pending') return reply.status(200).send('pending')
     else if (data === 'fail') return reply.status(500).send('fail')
@@ -52,11 +50,11 @@ export const scrapperRouter: FastifyPluginAsync = async (server, opts) => {
       return reply.status(200).send({ url, m3u8: pythonScript.includes('m3u8'), format: 'mp3&mp4' })
     
     const slowScript = isSS(pythonScript)
-    const writeFile = utils.promisify(fs.writeFile)
     const requestId = uuidv4()
 
     if (slowScript) {
-      await writeFile(`../media/${requestId}.txt`, 'pending')
+      await fs.ensureFile(`../media/${requestId}.txt`)
+      await fs.outputFile(`../media/${requestId}.txt`, 'pending')
       reply.status(202).send(requestId)
     }
 
@@ -76,7 +74,7 @@ export const scrapperRouter: FastifyPluginAsync = async (server, opts) => {
         if (!slowScript)
           return reply.status(500).send("Couldn't scrap media from URL. Try again later.")
         else
-          return await writeFile(`../media/${requestId}`, 'fail')
+          return await fs.outputFile(`../media/${requestId}`, 'fail')
       }
       
       const m3u8 = media_url.includes('.m3u8')
@@ -91,7 +89,7 @@ export const scrapperRouter: FastifyPluginAsync = async (server, opts) => {
       if (!slowScript)
         reply.status(200).send({ url: media_url, m3u8, format })
       else
-        await writeFile(`../media/${requestId}`, media_url)
+        await fs.outputFile(`../media/${requestId}`, media_url)
     })
   })
 }

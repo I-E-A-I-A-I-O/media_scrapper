@@ -1,8 +1,7 @@
 import { FastifyPluginAsync } from 'fastify'
 import { FromSchema } from 'json-schema-to-ts'
 import { FileParams } from '../types/body'
-import fs from 'fs'
-import utils from 'util'
+import fs from 'fs-extra'
 
 const getContentType = (name: string): string => {
     try {
@@ -20,16 +19,13 @@ export const downloadRouter: FastifyPluginAsync = async (server, opts) => {
         const { fileName } = request.params
         
         try {
-            const readfile = utils.promisify(fs.readFile)
-            const data = readfile(`../media/${fileName}`)
+            const data = await fs.readFile(`../media/${fileName}`)
             reply.type(getContentType(fileName))
             reply.header('Content-Disposition', `attachment; filename=${fileName}`)
             reply.send(data)
-            const rm = utils.promisify(fs.rm)
-            rm(fileName)
+            fs.rm(fileName)
         } catch (err) {
-            const rm = utils.promisify(fs.rm)
-            rm(fileName)
+            fs.rm(fileName)
             reply.status(500).send('Error reading file')
         }
     })

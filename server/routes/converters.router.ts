@@ -3,8 +3,7 @@ import { FromSchema } from 'json-schema-to-ts'
 import { ResponseBody } from '../types/body'
 import { spawn } from 'child_process'
 import path from 'path'
-import fs from 'fs'
-import utils from 'util'
+import fs from 'fs-extra'
 import { v4 as uuidv4 } from 'uuid'
 
 const MEDIA_FOLDER = path.join(__dirname, '..', 'media')
@@ -47,13 +46,11 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
       server.log.info(`m3u8 URL ${url} conversion finished with code ${code}`)
       
       try {
-        const readfile = utils.promisify(fs.readFile)
-        const data = await readfile(outputPath)
+        const data = await fs.readFile(outputPath)
         reply.type(getContentType(fileName))
         reply.header('Content-Disposition', `attachment; filename=${fileName}`)
         reply.send(data)
-        const rm = utils.promisify(fs.rm)
-        rm(outputPath)
+        fs.rm(outputPath)
       } catch(err) {
         server.log.error(err)
         reply.status(500).send('Error sending file. Try again later.')
@@ -66,8 +63,7 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
 
     if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
 
-    const readFile = utils.promisify(fs.readFile)
-    const data = await readFile(`../media/${url}`, { encoding: 'utf8' })
+    const data = await fs.readFile(`../media/${url}`, { encoding: 'utf8' })
 
     if (data === 'pending') return reply.status(200).send('pending')
     else if (data === 'fail') return reply.status(500).send('fail')
@@ -81,9 +77,9 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
     if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
     if (!url.includes('.m3u8')) return reply.status(400).send('Master m3u8 expected')
 
-    const writeFile = utils.promisify(fs.writeFile)
     const requestId = uuidv4()
-    await writeFile(`../media/${requestId}`, 'pending')
+    await fs.ensureFile(`../media/${requestId}.txt`)
+    await fs.outputFile(`../media/${requestId}.txt`, 'pending')
     reply.status(202).send(requestId)
     url = url.replace(/\n/g, '')
     server.log.info(`m3u8 URL ${url} received. Converting to mp3.`)
@@ -104,12 +100,11 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
       server.log.info(`m3u8 URL ${url} conversion finished with code ${code}`)
       
       try {
-        writeFile(`../media/${requestId}`, `${fileName}.mp3`)
+        await fs.outputFile(`../media/${requestId}`, `${fileName}.mp3`)
       } catch(err) {
         server.log.error(err)
-        const rm = utils.promisify(fs.rm)
-        rm(outputPath)
-        writeFile(`../media/${requestId}`, 'fail')
+        fs.rm(outputPath)
+        await fs.outputFile(`../media/${requestId}`, 'fail')
       }
     })
   })
@@ -137,13 +132,11 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
 
       try {
         const filepath = path.join(MEDIA_FOLDER, filename)
-        const readfile = utils.promisify(fs.readFile)
-        const filedata = await readfile(filepath)
+        const filedata = await fs.readFile(filepath)
         reply.type('audio/mp3')
         reply.header('Content-Disposition', `attachment; filename=${filename}`)
         reply.send(filedata)
-        const rm = utils.promisify(fs.rm)
-        rm(filepath)
+        fs.rm(filepath)
       } catch (err) {
         server.log.error(err)
         reply.status(500).send('Error sending file. Try again later.')
@@ -174,13 +167,11 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
 
       try {
         const filepath = path.join(MEDIA_FOLDER, filename)
-        const readfile = utils.promisify(fs.readFile)
-        const filedata = await readfile(filepath)
+        const filedata = await fs.readFile(filepath)
         reply.type('video/mp4')
         reply.header('Content-Disposition', `attachment; filename=${filename}`)
         reply.send(filedata)
-        const rm = utils.promisify(fs.rm)
-        rm(filepath)
+        fs.rm(filepath)
       } catch (err) {
         server.log.error(err)
         reply.status(500).send('Error sending file. Try again later.')
