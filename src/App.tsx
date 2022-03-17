@@ -34,7 +34,7 @@ function App() {
   const [downloadLink, setDownloadLink] = useState('')
   const [severity, setSeverity] = useState<AlertColor>('success')
 
-  const HOST = 'https://mediascrapper.ninja'
+  const HOST = 'https://media-scraper-ninja.herokuapp.com'
 
   const theme = createTheme({
     palette: { mode: 'dark' }

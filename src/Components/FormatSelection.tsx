@@ -35,7 +35,7 @@ function IsYoutube(url: string): boolean {
     return false
 }
 
-const HOST = 'https://mediascrapper.ninja'
+const HOST = 'https://media-scraper-ninja.herokuapp.com/'
 
 export function FormatSelection(props: FormatSelectionProps) {
     const [loading, setLoading] = useState(false)
