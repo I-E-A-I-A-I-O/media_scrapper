@@ -21,7 +21,7 @@ def get_video_src(base: str):
         primary = "//*[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw cnBpEa\"]"
         secondary = "//*[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw iCGaIi\"]"
 
-    myDisplay = Display(visible=True, size=(1920, 1080))
+    myDisplay = Display(visible=False, size=(1920, 1080))
     myDisplay.display = 0
     myDisplay.start()
     caps = DesiredCapabilities.CHROME
