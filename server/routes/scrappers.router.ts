@@ -15,6 +15,8 @@ const processLink = (url: string): string => {
   else if (url.includes('rfi.fr')) return 'rfiSearch.py'
   else if (url.includes('youtube.com') || url.includes('youtu.be')) return 'skip'
   else if (url.includes('.m3u8')) return 'skipm3u8'
+  else if (url.includes('instagram.com/tv/') || url.includes('instagram.com/reel/')) return 'instagramSearch.py'
+  else if (url.includes('twitter.com')) return 'skip'
 
   return ''
 }
@@ -83,6 +85,7 @@ export const scrapperRouter: FastifyPluginAsync = async (server, opts) => {
   
       if (m3u8) format = 'mp3&mp4'
       else if (media_url.includes('.mp4')) format = 'mp3&mp4'
+      else if (media_url.includes('instagram.')) format = 'mp3&mp4'
       else format = 'mp3'
   
       server.log.info(`Script success. Sending back media URL ${media_url}`)
