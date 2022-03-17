@@ -22,6 +22,7 @@ def get_video_src(base: str):
         secondary = "//*[@class = \"pui_center-controls_big-play-toggle sc-iAyFgw iCGaIi\"]"
 
     myDisplay = Display(visible=True, size=(1920, 1080))
+    myDisplay.display = 0
     myDisplay.start()
     caps = DesiredCapabilities.CHROME
     caps['binary_location'] = os.environ.get("GOOGLE_CHROME_BIN")
