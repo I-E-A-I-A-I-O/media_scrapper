@@ -21,7 +21,7 @@ server.get('/', async (request, reply) => {
 
 const start = () => {
   try {
-    server.listen(PORT).then(() => {
+    server.listen(PORT, '0.0.0.0').then(() => {
       server.log.info(`Server running in port ${PORT}`)
     })
   } catch (err) {

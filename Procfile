@@ -1,1 +1,1 @@
-Worker: ts-node server/index.ts
+worker: ts-node server/index.ts
