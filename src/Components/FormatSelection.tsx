@@ -97,7 +97,7 @@ export function FormatSelection(props: FormatSelectionProps) {
         
         if (path.includes('m3u8')) {
             try {
-                const request = await fetch(`https://media-scrapper.herokuapp.com/${path}?url=${props.downloadLink}`)
+                const request = await fetch(`${HOST}/${path}?url=${props.downloadLink}`)
                 const requestId = await request.text()
                 const conversionStat = setInterval(async () => {
                     await conversionStatCallback(conversionStat, requestId)
@@ -108,7 +108,7 @@ export function FormatSelection(props: FormatSelectionProps) {
             }
         }
         else {
-            window.location.href = `https://media-scrapper.herokuapp.com/${path}?url=${props.downloadLink}`
+            window.location.href = `${HOST}/${path}?url=${props.downloadLink}`
             props.onNotification('Converting file... download will start shortly')
     
             setTimeout(() => {
