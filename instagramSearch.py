@@ -26,20 +26,24 @@ def get_video_src(post_link: str):
     except:
         pass
 
-    mp4_url = wd.execute_script("""
+    video_tags = wd.execute_script("""
         try {
-            return document.getElementsByClassName('tWeCl')[0].src
+            return document.getElementsByClassName('tWeCl')
         } catch {
             return null
         }
     """)
 
-    if (mp4_url is None):
+    if (video_tags is None):
         sys.exit("Couldn't find mp4 URL")
 
     wd.quit()
-    return mp4_url
+    return video_tags
 
 
-print(get_video_src(sys.argv[1]))
+tags = get_video_src(sys.argv[1])
+
+for tag in tags:
+    print(tag.src)
+
 sys.stdout.flush()

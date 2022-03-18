@@ -27,11 +27,11 @@ function App() {
   const [converting, setConverting] = useState(false)
   const [url, setURL] = useState('')
   const [step, setStep] = useState(0)
-  const [format, setFormat] = useState<'mp3' | 'mp3&mp4'>('mp3')
+  const [format, setFormat] = useState<'mp3' | 'mp3&mp4' | 'mp4'>('mp3')
   const [open, setOpen] = useState(false)
   const [error, setError] = useState('')
   const [loadingText, setLoadingText] = useState('')
-  const [downloadLink, setDownloadLink] = useState('')
+  const [downloadLink, setDownloadLink] = useState<string | string[]>('')
   const [severity, setSeverity] = useState<AlertColor>('success')
 
   const HOST = 'https://media-scraper-ninja.herokuapp.com'
@@ -71,7 +71,7 @@ function App() {
       }
     } catch {
       showError('Error converting file. Try again later.', 'error')
-      setStep(2)
+      setStep(0)
       setConverting(false)
       clearInterval(timerId)
     }
@@ -99,9 +99,14 @@ function App() {
       })
 
       if (response.status === 200) {
-        const body: { url: string, m3u8: boolean, format: 'mp3' | 'mp3&mp4' } = await response.json()
+        const body: { url: string[], m3u8: boolean, format: 'mp3' | 'mp3&mp4' | 'mp4' } = await response.json()
         setFormat(body.format)
-        setDownloadLink(body.url)
+
+        if (url.includes('instagram.com'))
+          setDownloadLink(body.url)
+        else
+          setDownloadLink(body.url[0])
+        
         setStep(2)
         setConverting(false)
       }

@@ -30,6 +30,18 @@ export function Instructions() {
                             ●
                         </Typography>
                         <Typography variant={'subtitle2'}>
+                            Instagram
+                        </Typography>
+                        <Typography variant={'subtitle2'}>
+                            ●
+                        </Typography>
+                        <Typography variant={'subtitle2'}>
+                            Twitter
+                        </Typography>
+                        <Typography variant={'subtitle2'}>
+                            ●
+                        </Typography>
+                        <Typography variant={'subtitle2'}>
                             m3u8
                         </Typography>
                     </Stack>

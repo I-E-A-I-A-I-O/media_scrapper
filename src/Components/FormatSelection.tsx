@@ -12,8 +12,8 @@ import {
 interface FormatSelectionProps {
     onNotification: (text: string) => void
     onLoading: () => void
-    formats: 'mp3' | 'mp3&mp4'
-    downloadLink: string
+    formats: 'mp3' | 'mp3&mp4' | 'mp4'
+    downloadLink: string | string[]
 }
 
 function LoadingText() {
@@ -69,6 +69,13 @@ export function FormatSelection(props: FormatSelectionProps) {
     }
 
     const download = async (mp4: boolean) => {
+        if (typeof props.downloadLink !== 'string') {
+            props.downloadLink.forEach(element => {
+                window.open(element)
+            });
+            return
+        }
+
         if ((mp4 && props.downloadLink.includes('.mp4')) || (!mp4 && props.downloadLink.includes('.mp3'))) {
             window.location.href = props.downloadLink
             return
@@ -83,6 +90,7 @@ export function FormatSelection(props: FormatSelectionProps) {
         else if (!mp4 && props.downloadLink.includes('.m3u8')) path = 'm3u8/mp3'
         else if (mp4 && IsYoutube(props.downloadLink)) path = 'youtube/mp4'
         else if (!mp4 && IsYoutube(props.downloadLink)) path = 'youtube/mp3'
+        else if (mp4 && props.downloadLink.includes('twitter.com')) path = 'twitter'
         else return
         
         if (path.includes('m3u8')) {
@@ -108,6 +116,14 @@ export function FormatSelection(props: FormatSelectionProps) {
         }
     }
 
+    const getTitle = () => {
+        switch(props.formats) {
+            case 'mp3': return 'Audio ready for download'
+            case 'mp4': return 'Video ready for download'
+            case 'mp3&mp4': return 'Select format'
+        }
+    }
+
     return (
         <Box sx={{ flexGrow: 1 }} paddingTop={1.5}>
             <Paper>
@@ -117,14 +133,19 @@ export function FormatSelection(props: FormatSelectionProps) {
                     <LoadingText />
                     :
                     <Typography variant='h4' style={{ alignSelf: 'center' }}>
-                      { props.formats === 'mp3' ? 'Audio ready for download' : 'Select format' }
+                      { getTitle() }
                     </Typography>
                 }
                 <Stack spacing={4} direction={'row'} alignSelf={'center'} paddingBottom={2}>
-                    <Button disabled={loading} variant='contained' onClick={() => { download(false) }}>
-                        MP3
-                        <Audiotrack />
-                    </Button>
+                    {
+                        props.formats === 'mp4' ? null :
+                        (
+                            <Button disabled={loading} variant='contained' onClick={() => { download(false) }}>
+                                MP3
+                                <Audiotrack />
+                            </Button>
+                        )
+                    }
                     {
                     props.formats === 'mp3' ? null : 
                     (

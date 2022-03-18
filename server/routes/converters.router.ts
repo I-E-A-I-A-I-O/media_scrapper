@@ -8,7 +8,8 @@ import { v4 as uuidv4 } from 'uuid'
 
 const MEDIA_FOLDER = path.join(__dirname, '..', 'media')
 const BASE_DIR = path.join(__dirname, '..', '..')
-//const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
+const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
+const TWT_SOURCE = path.join(__dirname, '..', '..', 'twitter-video-download', 'twitter-video-dl.py')
 
 const getContentType = (name: string): string => {
   try {
@@ -22,33 +23,50 @@ const getContentType = (name: string): string => {
 }
 
 export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
-  /*server.get<{ Querystring: FromSchema<typeof ResponseBody> }>('/mp4/mp3', async (request, reply) => {
+  server.get<{ Querystring: FromSchema<typeof ResponseBody> }>('/conversion/stat', async (request, reply) => {
     let { url } = request.query
 
     if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
 
-    const requestId = uuidv4()
-    await fs.ensureFile(path.join(MEDIA_FOLDER, `${requestId}.txt`))
-    await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'pending')
-    reply.status(202).send(`${requestId}.txt`)
-    url = url.replace(/\n/g, '')
-    server.log.info(`mp4 URL ${url} received. Converting to mp3.`)
-    const fileName = Date()
-    const outputPath = `${MEDIA_FOLDER}/${fileName}.mp3`
-    server.log.info(`using output path ${outputPath} for mp4 URL ${url}`)
+    const data = await fs.readFile(path.join(MEDIA_FOLDER, url), { encoding: 'utf8' })
 
-  })*/
+    if (data === 'pending') return reply.status(200).send('pending')
+    else if (data === 'fail') return reply.status(500).send('fail')
 
-  server.get<{ Querystring: FromSchema<typeof ResponseBody> }>('/twitter/mp3', async (request, reply) => {
+    reply.status(200).send(data)
+  })
+
+  server.get<{ Querystring: FromSchema<typeof ResponseBody> }>('/twitter', async (request, reply) => {
     let { url } = request.query
-
+  
     if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
 
     const requestId = uuidv4()
+    const fileName = uuidv4()
     await fs.ensureFile(path.join(MEDIA_FOLDER, `${requestId}.txt`))
     await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'pending')
     reply.status(202).send(`${requestId}.txt`)
     url = url.replace(/\n/g, '')
+    const outputPath = `${MEDIA_FOLDER}/${fileName}.mp4`
+    server.log.info(`using output path ${outputPath} for twitter URL ${url}`)
+    const conversion = spawn(VENV_SOURCE, [TWT_SOURCE, url, outputPath])
+
+    conversion.on('exit', async (code) => {
+      server.log.info(`twitter URL ${url} conversion finished with code ${code}`)
+      
+      try {
+        if (code !== 0) {
+          await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'fail')
+          return
+        }
+
+        await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), `${fileName}.mp4`)
+      } catch(err) {
+        server.log.error(err)
+        fs.rm(outputPath)
+        await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'fail')
+      }
+    })
   })
 
   server.get<{ Querystring: FromSchema<typeof ResponseBody> }>('/m3u8/mp4', async (request, reply) => {
@@ -89,19 +107,6 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
     })
   })
   
-  server.get<{ Querystring: FromSchema<typeof ResponseBody> }>('/conversion/stat', async (request, reply) => {
-    let { url } = request.query
-
-    if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
-
-    const data = await fs.readFile(path.join(MEDIA_FOLDER, url), { encoding: 'utf8' })
-
-    if (data === 'pending') return reply.status(200).send('pending')
-    else if (data === 'fail') return reply.status(500).send('fail')
-
-    reply.status(200).send(data)
-  })
-
   server.get<{ Querystring: FromSchema<typeof ResponseBody> }>('/m3u8/mp3', async (request, reply) => {
     let { url } = request.query
   
