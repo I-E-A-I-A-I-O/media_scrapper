@@ -151,7 +151,7 @@ function App() {
             <Toolbar>
               <img width={70} src="/ed-smiley.png" alt="logo" style={{ alignSelf: 'center' }} />
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                Media Scrapper
+                Media Scraper
               </Typography>
             </Toolbar>
           </AppBar>
