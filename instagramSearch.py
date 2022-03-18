@@ -28,7 +28,14 @@ def get_video_src(post_link: str):
 
     video_tags = wd.execute_script("""
         try {
-            return document.getElementsByClassName('tWeCl')
+            let sources = []
+            const elements = document.getElementsByClassName('tWeCl')
+            
+            for (let i = 0; i < elements.length; i++) {
+                sources.push(elements[i].src)
+            }
+
+            return sources
         } catch {
             return null
         }
@@ -44,6 +51,6 @@ def get_video_src(post_link: str):
 tags = get_video_src(sys.argv[1])
 
 for tag in tags:
-    print(tag.src)
+    print(tag)
 
 sys.stdout.flush()
