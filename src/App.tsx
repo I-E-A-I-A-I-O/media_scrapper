@@ -34,7 +34,7 @@ function App() {
   const [downloadLink, setDownloadLink] = useState<string | string[]>('')
   const [severity, setSeverity] = useState<AlertColor>('success')
 
-  const HOST = 'https://media-scrapper.herokuapp.com'
+  const HOST = 'https://media-scraper-xd.herokuapp.com'
 
   const theme = createTheme({
     palette: { mode: 'dark' }
