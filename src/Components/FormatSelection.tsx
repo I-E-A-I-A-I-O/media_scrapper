@@ -35,7 +35,7 @@ function IsYoutube(url: string): boolean {
     return false
 }
 
-const HOST = 'https://media-scraper-xd.herokuapp.com'
+const HOST = 'https://media-scrapper.herokuapp.com'
 
 export function FormatSelection(props: FormatSelectionProps) {
     const [loading, setLoading] = useState(false)
@@ -84,6 +84,8 @@ export function FormatSelection(props: FormatSelectionProps) {
         setLoading(true)
         props.onLoading()
         let path: string
+
+        console.log(props.downloadLink)
 
         if (!mp4 && props.downloadLink.includes('.mp4')) path = 'mp4/mp3'
         else if (mp4 && props.downloadLink.includes('.m3u8')) path = 'm3u8/mp4'

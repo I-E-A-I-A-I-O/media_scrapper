@@ -50,9 +50,9 @@ export const scrapperRouter: FastifyPluginAsync = async (server, opts) => {
   
     if (pythonScript.length === 0) return reply.status(400).send('Website not supported')
     if (pythonScript === 'skipmp4')
-      return reply.status(200).send({ url, m3u8: false, format: 'mp4' })
+      return reply.status(200).send({ url: [url], m3u8: false, format: 'mp4' })
     if (pythonScript.includes('skip')) 
-      return reply.status(200).send({ url, m3u8: pythonScript.includes('m3u8'), format: 'mp3&mp4' })
+      return reply.status(200).send({ url: [url], m3u8: pythonScript.includes('m3u8'), format: 'mp3&mp4' })
     
     const slowScript = isSS(pythonScript)
     const requestId = uuidv4()
