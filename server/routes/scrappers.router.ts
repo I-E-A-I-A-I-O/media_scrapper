@@ -64,7 +64,7 @@ export const scrapperRouter: FastifyPluginAsync = async (server, opts) => {
     }
 
     server.log.info(`URL ${url} received. Starting script ${pythonScript}`)
-    let media_url: string[]
+    let media_url: string[] = []
     const pScript = spawn(/*VENV_SOURCE*/ 'python3', [path.join(BASE_DIR, pythonScript), url])
   
     pScript.stdout.on('data', (data) => {
