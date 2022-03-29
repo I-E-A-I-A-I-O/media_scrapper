@@ -27,14 +27,14 @@ function App() {
   const [converting, setConverting] = useState(false)
   const [url, setURL] = useState('')
   const [step, setStep] = useState(0)
-  const [format, setFormat] = useState<'mp3' | 'mp3&mp4'>('mp3')
   const [open, setOpen] = useState(false)
   const [error, setError] = useState('')
   const [loadingText, setLoadingText] = useState('')
-  const [downloadLink, setDownloadLink] = useState('')
+  const [downloadLink, setDownloadLink] = useState<string[]>([])
   const [severity, setSeverity] = useState<AlertColor>('success')
+  const [m3u8, setM3u8] = useState(false)
 
-  const HOST = 'https://media-scraper-ninja.herokuapp.com'
+  const HOST = 'http://localhost:4180'
 
   const theme = createTheme({
     palette: { mode: 'dark' }
@@ -48,8 +48,7 @@ function App() {
 
   const conversionStatCallback = async (timerId: NodeJS.Timer, requestId: string) => {
     try {
-      const response = await fetch(
-        `${HOST}/scrap/stat?url=${requestId}`, {
+      const response = await fetch(`${HOST}/scrap/stat?url=${requestId}`, {
           method: 'GET'
         })
 
@@ -62,8 +61,8 @@ function App() {
         clearInterval(timerId)
       } else {
         if (message !== 'pending') {
-          setFormat('mp3&mp4')
-          setDownloadLink(message)
+          setDownloadLink([message])
+          setM3u8(true)
           setStep(2)
           setConverting(false)
           clearInterval(timerId)
@@ -87,7 +86,7 @@ function App() {
         return setConverting(false)
       }
 
-      setLoadingText('Scrapping media from URL... m3u8 formats might take longer.')
+      setLoadingText('Scraping media from URL...')
       setStep(1)
       setOpen(false)
       const response = await fetch(`${HOST}/scrap`, {
@@ -99,8 +98,8 @@ function App() {
       })
 
       if (response.status === 200) {
-        const body: { url: string, m3u8: boolean, format: 'mp3' | 'mp3&mp4' } = await response.json()
-        setFormat(body.format)
+        const body: { url: string[], m3u8: boolean } = await response.json()
+        setM3u8(body.m3u8)
         setDownloadLink(body.url)
         setStep(2)
         setConverting(false)
@@ -131,10 +130,14 @@ function App() {
   
     if (step === 2) return (
       <FormatSelection 
+        m3u8={m3u8}
         downloadLink={downloadLink}
         onLoading={() => { setConverting(true) }} 
-        onNotification={(str) => { setConverting(false) }} 
-        formats={format} />
+        onNotification={(str, changeState, notiType) => { 
+          if (changeState) setConverting(false)
+
+          showError(str, notiType)
+        }} />
     )
   }
 
@@ -146,7 +149,7 @@ function App() {
             <Toolbar>
               <img width={70} src="/ed-smiley.png" alt="logo" style={{ alignSelf: 'center' }} />
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                Media Scrapper
+                Media Scraper
               </Typography>
             </Toolbar>
           </AppBar>
@@ -178,7 +181,7 @@ function App() {
             <CardContent>
               <Stack direction={'row'} spacing={2}>
                 <TextField value={url} onChange={(val) => { setURL(val.target.value) }} fullWidth id="filled-basic" label="Website URL" variant="filled" />
-                <Button disabled={converting} onClick={postURL} variant='contained'>
+                <Button disabled={converting} onClick={ postURL } variant='contained'>
                   scrap
                   <Construction />
                 </Button>

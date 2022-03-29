@@ -1,19 +1,24 @@
 import React, { useState } from 'react'
-import { Audiotrack, Videocam } from '@mui/icons-material'
+import { Audiotrack, Videocam, Download } from '@mui/icons-material'
 import { 
     Paper, 
     Box, 
     Typography, 
     Stack,
     LinearProgress,
-    Button
+    Button,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+    AlertColor
 } from '@mui/material'
 
 interface FormatSelectionProps {
-    onNotification: (text: string) => void
+    onNotification: (text: string, changeState: boolean, notiType: AlertColor) => void
     onLoading: () => void
-    formats: 'mp3' | 'mp3&mp4'
-    downloadLink: string
+    downloadLink: string[],
+    m3u8: boolean
 }
 
 function LoadingText() {
@@ -35,42 +40,51 @@ function IsYoutube(url: string): boolean {
     return false
 }
 
-const HOST = 'https://media-scraper-ninja.herokuapp.com'
+const HOST = 'http://localhost:4180'
 
 export function FormatSelection(props: FormatSelectionProps) {
     const [loading, setLoading] = useState(false)
 
     const conversionStatCallback = async (timerId: NodeJS.Timer, requestId: string) => {
         try {
-          const response = await fetch(
-            `${HOST}/conversion/stat?url=${requestId}`, {
+          const response = await fetch(`${HOST}/conversion/stat?url=${requestId}`, {
               method: 'GET'
             })
 
           const message = await response.text()
 
           if (!response.ok) {
-            props.onNotification('Error converting file. Try again later.')
+            props.onNotification('Error converting file. Try again later.', true, 'error')
             setLoading(false)
             clearInterval(timerId)
           } else {
             if (message !== 'pending') {
                 window.location.href = `${HOST}/download/${message}`
-                props.onNotification('Starting download...')
+                props.onNotification('Starting download...', true, 'info')
                 setLoading(false)
                 clearInterval(timerId)
             }
           }
         } catch {
-            props.onNotification('Error converting file. Try again later.')
+            props.onNotification('Error converting file. Try again later.', true, 'error')
             setLoading(false)
             clearInterval(timerId)
         }
     }
 
-    const download = async (mp4: boolean) => {
-        if ((mp4 && props.downloadLink.includes('.mp4')) || (!mp4 && props.downloadLink.includes('.mp3'))) {
-            window.location.href = props.downloadLink
+    const onLinkClicked = (link: string) => {
+        navigator.clipboard.writeText(link).then(() => {
+            props.onNotification("Link copied to clipboard!", false, 'success')
+        }, (err) => {
+            console.error(err)
+            props.onNotification("Error copying the link...", false, 'error')
+        })
+    }
+
+    const download = async (mp4: boolean, direct: boolean = false) => {
+        if (direct || ((mp4 && props.downloadLink.includes('.mp4')) || (!mp4 && props.downloadLink.includes('.mp3')))) {
+            props.onNotification('Starting download...', false, 'info')
+            window.location.href = props.downloadLink[0]
             return
         }
         
@@ -78,34 +92,93 @@ export function FormatSelection(props: FormatSelectionProps) {
         props.onLoading()
         let path: string
 
-        if (!mp4 && props.downloadLink.includes('.mp4')) path = 'mp4/mp3'
-        else if (mp4 && props.downloadLink.includes('.m3u8')) path = 'm3u8/mp4'
-        else if (!mp4 && props.downloadLink.includes('.m3u8')) path = 'm3u8/mp3'
-        else if (mp4 && IsYoutube(props.downloadLink)) path = 'youtube/mp4'
-        else if (!mp4 && IsYoutube(props.downloadLink)) path = 'youtube/mp3'
+        if (mp4 && props.m3u8) path = 'm3u8/mp4'
+        else if (!mp4 && props.m3u8) path = 'm3u8/mp3'
+        else if (mp4 && IsYoutube(props.downloadLink[0])) path = 'youtube/mp4'
+        else if (!mp4 && IsYoutube(props.downloadLink[0])) path = 'youtube/mp3'
         else return
         
-        if (path.includes('m3u8')) {
+        if (props.m3u8) {
             try {
-                const request = await fetch(`https://media-scrapper.herokuapp.com/${path}?url=${props.downloadLink}`)
+                const request = await fetch(`${HOST}/${path}?url=${props.downloadLink}`)
                 const requestId = await request.text()
                 const conversionStat = setInterval(async () => {
                     await conversionStatCallback(conversionStat, requestId)
                 }, 5000)
             } catch {
                 setLoading(false)
-                props.onNotification('Error converting file. Try again later.')
+                props.onNotification('Error converting file. Try again later.', true, 'error')
             }
         }
         else {
-            window.location.href = `https://media-scrapper.herokuapp.com/${path}?url=${props.downloadLink}`
-            props.onNotification('Converting file... download will start shortly')
+            window.location.href = `${HOST}/${path}?url=${props.downloadLink}`
+            props.onNotification('Converting file... download will start shortly', true, 'info')
     
             setTimeout(() => {
                 setLoading(false)
-                props.onNotification('')
+                props.onNotification('', true, 'info')
             }, 30000)
         }
+    }
+
+    const dynamicDownloadTitle = (): JSX.Element => {
+        if (props.m3u8 || IsYoutube(props.downloadLink[0]))
+            return (
+                <Typography variant='h4' style={{ alignSelf: 'center' }}>
+                    Select format
+                </Typography>
+            )
+        else if (props.downloadLink.length > 1)
+            return (
+                <Typography variant='h4' style={{ alignSelf: 'center' }}>
+                    Scraped download links
+                </Typography>
+            )
+        else
+            return (
+                <Typography variant='h4' style={{ alignSelf: 'center' }}>
+                    Media ready for download
+                </Typography>
+            )
+    }
+
+    const dynamicDownloadButtons = () => {
+        if (props.m3u8 || IsYoutube(props.downloadLink[0]))
+            return (
+                <Stack spacing={4} direction={'row'} alignSelf={'center'} paddingBottom={2}>
+                    <Button disabled={loading} variant='contained' onClick={() => { download(false) }}>
+                        MP3
+                        <Audiotrack />
+                    </Button>
+                    <Button disabled={loading} variant='contained' onClick={() => { download(true) }}>
+                        MP4
+                        <Videocam />
+                    </Button>
+                </Stack>
+            )
+        else if (props.downloadLink.length < 2)
+            return (
+                <Stack spacing={4} direction={'row'} alignSelf={'center'} paddingBottom={2}>
+                    <Button disabled={loading} variant='contained' onClick={() => { download(true) }}>
+                        Download
+                        <Download />
+                    </Button>
+                </Stack>
+            )
+        else
+            return (
+                <List sx={{alignSelf: 'center', paddingBottom: 2}}>
+                    {
+                        props.downloadLink.map((link) => 
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => onLinkClicked(link)}>
+                                <ListItemText primary={link} />
+                            </ListItemButton>
+                        </ListItem>
+                        )
+                    }
+                </List>
+            )
     }
 
     return (
@@ -116,25 +189,9 @@ export function FormatSelection(props: FormatSelectionProps) {
                     ?
                     <LoadingText />
                     :
-                    <Typography variant='h4' style={{ alignSelf: 'center' }}>
-                      { props.formats === 'mp3' ? 'Audio ready for download' : 'Select format' }
-                    </Typography>
+                    dynamicDownloadTitle()
                 }
-                <Stack spacing={4} direction={'row'} alignSelf={'center'} paddingBottom={2}>
-                    <Button disabled={loading} variant='contained' onClick={() => { download(false) }}>
-                        MP3
-                        <Audiotrack />
-                    </Button>
-                    {
-                    props.formats === 'mp3' ? null : 
-                    (
-                        <Button disabled={loading} variant='contained' onClick={() => { download(true) }}>
-                            MP4
-                            <Videocam />
-                        </Button>
-                    )
-                    }
-                </Stack>
+                { dynamicDownloadButtons() }
                 { loading ? <LinearProgress variant='indeterminate' /> : null }
               </Stack>
             </Paper>

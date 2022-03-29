@@ -20,15 +20,30 @@ const getContentType = (name: string): string => {
 export const downloadRouter: FastifyPluginAsync = async (server, opts) => {
     server.get<{ Params: FromSchema<typeof FileParams> }>('/:fileName', async (request, reply) => {
         const { fileName } = request.params
+        const filePath = path.join(MEDIA_FOLDER, fileName)
         
         try {
-            const data = await fs.readFile(path.join(MEDIA_FOLDER, fileName))
+            const data = await fs.readFile(filePath)
             reply.type(getContentType(fileName))
             reply.header('Content-Disposition', `attachment; filename=${fileName}`)
             reply.send(data)
-            //fs.rm(fileName)
+
+            request.socket.on('close', async (err) => {
+                if (err) return
+
+                try {
+                    await fs.rm(filePath)
+                } catch (err) {
+                    server.log.error(err)
+                }
+            })
         } catch (err) {
-            fs.rm(fileName)
+            try {
+                await fs.rm(filePath)
+            } catch (err) {
+                server.log.error(err)
+            }
+
             reply.status(500).send('Error reading file')
         }
     })

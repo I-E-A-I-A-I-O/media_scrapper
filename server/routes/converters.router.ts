@@ -8,9 +8,9 @@ import { v4 as uuidv4 } from 'uuid'
 
 const MEDIA_FOLDER = path.join(__dirname, '..', 'media')
 const BASE_DIR = path.join(__dirname, '..', '..')
-//const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
+const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
 
-const getContentType = (name: string): string => {
+/*const getContentType = (name: string): string => {
   try {
     const ex = name.split('.')[1]
   
@@ -19,7 +19,7 @@ const getContentType = (name: string): string => {
   } catch {
     return 'video/mp4'
   }
-}
+}*/
 
 export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
   /*server.get<{ Querystring: FromSchema<typeof ResponseBody> }>('/mp4/mp3', async (request, reply) => {
@@ -146,7 +146,7 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
     if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
 
     url = url.replace(/\n/g, '')
-    const pScript = spawn(/*VENV_SOURCE*/ 'python3', [path.join(BASE_DIR, 'ytDownload.py'), url, 'audio'])
+    const pScript = spawn(VENV_SOURCE /*'python3'*/, [path.join(BASE_DIR, 'ytDownload.py'), url, 'audio'])
     let filename = ''
 
     pScript.stdout.on('data', (data) => {
@@ -181,7 +181,7 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
     if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
 
     url = url.replace(/\n/g, '')
-    const pScript = spawn(/*VENV_SOURCE*/ 'python3', [path.join(BASE_DIR, 'ytDownload.py'), url, 'video'])
+    const pScript = spawn(VENV_SOURCE /*'python3'*/, [path.join(BASE_DIR, 'ytDownload.py'), url, 'video'])
     let filename = ''
 
     pScript.stdout.on('data', (data) => {

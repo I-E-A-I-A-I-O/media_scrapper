@@ -1,7 +1,7 @@
-import Fastify, { FastifyInstance, RouteShorthandOptions } from 'fastify'
+import Fastify, { FastifyInstance } from 'fastify'
 import fstatic from 'fastify-static'
 import path from 'path'
-import { scrapperRouter } from './routes/scrappers.router'
+import { scraperRouter } from './routes/scrapers.router'
 import { convertersRouter } from './routes/converters.router'
 import { downloadRouter } from './routes/download.router'
 import FastifyHelmet from 'fastify-helmet'
@@ -12,7 +12,7 @@ const server: FastifyInstance = Fastify({ logger: true });
 server.register(FastifyHelmet, { global: true })
 server.register(fstatic, { root: buildDir })
 server.register(downloadRouter, { prefix: '/download' })
-server.register(scrapperRouter, { prefix: '/' })
+server.register(scraperRouter, { prefix: '/' })
 server.register(convertersRouter, { prefix: '/' })
 
 server.get('/', async (request, reply) => {
