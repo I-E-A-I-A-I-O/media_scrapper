@@ -19,7 +19,7 @@ try:
         stream = video.streams.get_audio_only()
         now = now.__add__(".mp3")
 
-    stream.download("./server/media", now.__str__())
+    stream.download("./dist/media", now.__str__())
     print(now)
     sys.stdout.flush()
 except:
