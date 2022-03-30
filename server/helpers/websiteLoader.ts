@@ -20,12 +20,10 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
         page.waitForSelector('[name="password"]'),
         page.waitForSelector('[type="submit"]'),
     ]);
-    logger.warn(process.env.INSTA_USER!)
-    logger.warn(process.env.INSTA_PASS!)
     await page.type('input[name="username"]', process.env.INSTA_USER!, { delay: 50 })
     await page.type('input[name="password"]', process.env.INSTA_PASS!, { delay: 50 })
     const response = await Promise.all([
-        page.waitForNavigation({timeout: 60000}),
+        page.waitForNavigation(),
         page.click('#loginForm > div > div:nth-child(3) > button')
     ]);
     /*await page.waitForFrame(async (frame) => {
@@ -53,7 +51,10 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
 }
 
 export const loadHTML = async (url: string, logger: FastifyLoggerInstance): Promise<string | null> => {
-    const browser = await puppeteer.launch({ args: ['--no-sandbox'] })
+    const browser = await puppeteer.launch({ 
+        headless: false,
+        args: ["--disable-setuid-sandbox"]
+    })
     const page = await browser.newPage()
     
     try {
