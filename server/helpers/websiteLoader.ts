@@ -4,7 +4,7 @@ import puppeteer from "puppeteer"
 const instagramProcess = async (url: string, page: puppeteer.Page, logger: FastifyLoggerInstance): Promise<string | null> => {
     logger.info(`Instagram page received. User url: ${url} Puppeteer url: ${page.url()}`)
 
-    if (page.url() === url) {
+    if (page.url().includes(url)) {
         logger.info(`URL ${page.url()} were equals. Returning content`)
         return await page.content()
     }
@@ -34,7 +34,7 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
         logger.info(`Post page reached`)
         return await page.content()
     }
-    else if (page.url() === url) {
+    else if (page.url().includes(url)) {
         logger.info(`Post page reached`)
         await page.waitForSelector('video[class="tWeCl"]')
         return await page.content()
@@ -54,7 +54,7 @@ export const loadHTML = async (url: string, logger: FastifyLoggerInstance): Prom
         const response = await page.goto(url)
 
         if (response.status() !== 200) {
-            logger.error(`Failed to request website. ${response.status()}`)
+            logger.error(`Failed to request website. ${response.status()} ${response.headers()}`)
             return null
         }
 
