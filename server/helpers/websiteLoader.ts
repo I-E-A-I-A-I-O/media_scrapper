@@ -15,10 +15,19 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
     }
 
     logger.info(`Login in into instagram`)
-    await page.waitForSelector('input[name="username"]')
+    await Promise.all([
+        page.waitForSelector('[name="username"]'),
+        page.waitForSelector('[name="password"]'),
+        page.waitForSelector('[name="submit"]'),
+    ]);
     await page.type('input[name="username"]', process.env.INSTA_USER!)
     await page.type('input[name="password"]', process.env.INSTA_PASS!)
-    await page.click('button[type="submit"]')
+    await Promise.all([
+        page.click('[type="submit"]'),
+        page.waitForNavigation({
+          waitUntil: 'networkidle0',
+        }),
+    ]);
     await page.waitForFrame(async (frame) => {
         return frame.url().includes('/onetap') || frame.url() === url
     })
