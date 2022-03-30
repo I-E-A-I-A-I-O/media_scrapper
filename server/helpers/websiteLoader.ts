@@ -2,7 +2,7 @@ import { FastifyLoggerInstance } from "fastify"
 import puppeteer from "puppeteer"
 
 const instagramProcess = async (url: string, page: puppeteer.Page, logger: FastifyLoggerInstance): Promise<string | null> => {
-    logger.info(`Instagram page receive. User url: ${url} Puppeteer url: ${page.url()}`)
+    logger.info(`Instagram page received. User url: ${url} Puppeteer url: ${page.url()}`)
 
     if (page.url().includes(url)) {
         logger.info(`URL ${page.url()} were equals. Returning content`)
@@ -47,10 +47,10 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
 
 export const loadHTML = async (url: string, logger: FastifyLoggerInstance): Promise<string | null> => {
     const browser = await puppeteer.launch({ args: ['--no-sandbox'] })
-    //const context = await browser.createIncognitoBrowserContext()
-    const page = await /*context*/browser.newPage()
-    
+
     try {
+        //const context = await browser.createIncognitoBrowserContext()
+        const page = await /*context*/browser.newPage()
         const response = await page.goto(url)
 
         if (response.status() !== 200) {
