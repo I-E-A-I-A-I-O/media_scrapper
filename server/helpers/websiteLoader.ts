@@ -1,6 +1,12 @@
 import { FastifyLoggerInstance } from "fastify"
 import puppeteer from "puppeteer"
 
+let PUP_BROWSER: puppeteer.Browser
+
+(async () => {
+    PUP_BROWSER = await puppeteer.launch({ args: ['--no-sandbox'] })
+})()
+
 const instagramProcess = async (url: string, page: puppeteer.Page, logger: FastifyLoggerInstance): Promise<string | null> => {
     logger.info(`Instagram page received. User url: ${url} Puppeteer url: ${page.url()}`)
 
@@ -29,7 +35,7 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
 
     if (page.url().includes('/onetap')) {
         logger.info(`Cookie page loaded`)
-        await page.click('button[class="sqdOP yWX7d    y3zKF     "]')
+        await page.click('button[class="sqdOP  L3NKy   y3zKF     "]')
         await page.waitForSelector('video[class="tWeCl"]')
         logger.info(`Post page reached`)
         return await page.content()
@@ -46,11 +52,9 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
 }
 
 export const loadHTML = async (url: string, logger: FastifyLoggerInstance): Promise<string | null> => {
-    const browser = await puppeteer.launch({ args: ['--no-sandbox'] })
-
+    const page = await PUP_BROWSER.newPage()
+    
     try {
-        //const context = await browser.createIncognitoBrowserContext()
-        const page = await /*context*/browser.newPage()
         const response = await page.goto(url)
 
         if (response.status() !== 200) {
@@ -66,6 +70,6 @@ export const loadHTML = async (url: string, logger: FastifyLoggerInstance): Prom
         logger.error(err)
         return null
     } finally {
-        await browser.close()
+        await page.close()
     }
 }
