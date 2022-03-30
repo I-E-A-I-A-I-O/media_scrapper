@@ -20,10 +20,10 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
         page.waitForSelector('[name="password"]'),
         page.waitForSelector('[name="submit"]'),
     ]);
-    await page.type('input[name="username"]', process.env.INSTA_USER!)
-    await page.type('input[name="password"]', process.env.INSTA_PASS!)
+    await page.type('input[name="username"]', process.env.INSTA_USER!, { delay: 50 })
+    await page.type('input[name="password"]', process.env.INSTA_PASS!, { delay: 50 })
     await Promise.all([
-        page.click('[type="submit"]'),
+        page.click('#loginForm > div > div:nth-child(3) > button'),
         page.waitForNavigation({
           waitUntil: 'networkidle0',
         }),
