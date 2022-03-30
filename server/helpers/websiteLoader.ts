@@ -28,9 +28,9 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
           waitUntil: 'networkidle0',
         }),
     ]);
-    await page.waitForFrame(async (frame) => {
+    /*await page.waitForFrame(async (frame) => {
         return frame.url().includes('/onetap') || frame.url() === url
-    })
+    })*/
     logger.info(`Login success. Current URL ${page.url()}`)
 
     if (page.url().includes('/onetap')) {
