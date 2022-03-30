@@ -22,10 +22,9 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
     ]);
     await page.type('input[name="username"]', process.env.INSTA_USER!, { delay: 50 })
     await page.type('input[name="password"]', process.env.INSTA_PASS!, { delay: 50 })
-    await Promise.all([
-        page.waitForNavigation(),
-        page.$eval('#loginForm > div > div:nth-child(3) > button', el => (el as HTMLElement).click())
-    ])
+    await page.$eval('#loginForm > div > div:nth-child(3) > button', el => (el as HTMLElement).click())
+    const response = await page.waitForNavigation()
+    logger.info(response)
     logger.info(`Login success. Current URL ${page.url()}`)
 
     if (page.url().includes('/onetap')) {
