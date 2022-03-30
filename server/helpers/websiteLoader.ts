@@ -54,7 +54,7 @@ export const loadHTML = async (url: string, logger: FastifyLoggerInstance): Prom
         const response = await page.goto(url)
 
         if (response.status() !== 200) {
-            logger.error(`Failed to request website. ${response.statusText()}`)
+            logger.error(`Failed to request website. ${response.status()}`)
             return null
         }
 
