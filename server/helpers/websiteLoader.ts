@@ -51,10 +51,7 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
 }
 
 export const loadHTML = async (url: string, logger: FastifyLoggerInstance): Promise<string | null> => {
-    const browser = await puppeteer.launch({ 
-        headless: false,
-        args: ['--no-sandbox', "--disable-setuid-sandbox"]
-    })
+    const browser = await puppeteer.launch({ args: ['--no-sandbox'] })
     const page = await browser.newPage()
     
     try {
