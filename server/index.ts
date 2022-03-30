@@ -1,3 +1,4 @@
+import dotenv from 'dotenv'
 import Fastify, { FastifyInstance } from 'fastify'
 import fstatic from 'fastify-static'
 import path from 'path'
@@ -6,6 +7,7 @@ import { convertersRouter } from './routes/converters.router'
 import { downloadRouter } from './routes/download.router'
 import FastifyHelmet from 'fastify-helmet'
 
+dotenv.config()
 const PORT = process.env.PORT || 4180;
 const buildDir = path.join(__dirname, '..', 'build')
 const server: FastifyInstance = Fastify({ logger: true });
