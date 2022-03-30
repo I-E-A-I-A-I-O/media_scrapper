@@ -16,7 +16,7 @@ const processLink = (url: string): string => {
   else if (url.includes('youtube.com') || url.includes('youtu.be')) return 'skip'
   else if (url.includes('.m3u8')) return 'skipm3u8'
   else if (url.includes('instagram.com')) return 'instagramSearch.py'
-  else if (url.includes('twitter.com')) return 'skip'
+  else if (url.includes('twitter.com')) return 'skipmp4'
 
   return ''
 }
@@ -48,7 +48,7 @@ export const scraperRouter: FastifyPluginAsync = async (server, opts) => {
   
     if (pythonScript.length === 0) return reply.status(400).send('Website not supported')
     if (pythonScript.includes('skip')) 
-      return reply.status(200).send({ url: [url], m3u8: pythonScript.includes('m3u8'), format: 'mp3&mp4' })
+      return reply.status(200).send({ url: [url], m3u8: pythonScript.includes('m3u8') })
     
     const slowScript = isSS(pythonScript)
     const requestId = uuidv4()

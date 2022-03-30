@@ -96,9 +96,10 @@ export function FormatSelection(props: FormatSelectionProps) {
         else if (!mp4 && props.m3u8) path = 'm3u8/mp3'
         else if (mp4 && IsYoutube(props.downloadLink[0])) path = 'youtube/mp4'
         else if (!mp4 && IsYoutube(props.downloadLink[0])) path = 'youtube/mp3'
+        else if (props.downloadLink.includes('twitter.com')) path = 'twitter'
         else return
         
-        if (props.m3u8) {
+        if (props.m3u8 || props.downloadLink.includes('twitter.com')) {
             try {
                 const request = await fetch(`${HOST}/${path}?url=${props.downloadLink}`)
                 const requestId = await request.text()
@@ -142,8 +143,16 @@ export function FormatSelection(props: FormatSelectionProps) {
             )
     }
 
+    const isMultiFormat = (): boolean => {
+        return props.m3u8 || IsYoutube(props.downloadLink[0])
+    }
+
+    const isMP4Only = (): boolean => {
+        return props.downloadLink[0].includes('twitter.com')
+    }
+
     const dynamicDownloadButtons = () => {
-        if (props.m3u8 || IsYoutube(props.downloadLink[0]))
+        if (isMultiFormat())
             return (
                 <Stack spacing={4} direction={'row'} alignSelf={'center'} paddingBottom={2}>
                     <Button disabled={loading} variant='contained' onClick={() => { download(false) }}>
@@ -156,10 +165,19 @@ export function FormatSelection(props: FormatSelectionProps) {
                     </Button>
                 </Stack>
             )
-        else if (props.downloadLink.length < 2)
+        else if (isMP4Only())
             return (
                 <Stack spacing={4} direction={'row'} alignSelf={'center'} paddingBottom={2}>
                     <Button disabled={loading} variant='contained' onClick={() => { download(true) }}>
+                        Download
+                        <Download />
+                    </Button>
+                </Stack>
+            )
+        else if (props.downloadLink.length < 2)
+            return (
+                <Stack spacing={4} direction={'row'} alignSelf={'center'} paddingBottom={2}>
+                    <Button disabled={loading} variant='contained' onClick={() => { download(true, true) }}>
                         Download
                         <Download />
                     </Button>
