@@ -40,7 +40,7 @@ function IsYoutube(url: string): boolean {
     return false
 }
 
-const HOST = 'http://localhost:4180'
+const HOST = 'https://mediascrapper.ninja'
 
 export function FormatSelection(props: FormatSelectionProps) {
     const [loading, setLoading] = useState(false)

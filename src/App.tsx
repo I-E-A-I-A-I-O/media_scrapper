@@ -34,7 +34,7 @@ function App() {
   const [severity, setSeverity] = useState<AlertColor>('success')
   const [m3u8, setM3u8] = useState(false)
 
-  const HOST = 'http://localhost:4180'
+  const HOST = 'https://mediascrapper.ninja'
 
   const theme = createTheme({
     palette: { mode: 'dark' }

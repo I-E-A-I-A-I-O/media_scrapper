@@ -9,7 +9,7 @@ import { loadHTML } from '../helpers/websiteLoader'
 
 const BASE_DIR = path.join(__dirname, '..', '..')
 const MEDIA_FOLDER = path.join(__dirname, '..', 'media')
-//const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
+const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
   
 const processLink = (url: string): string => {
   if (url.includes('rfi.fr')) return 'rfiSearch.py'
@@ -68,7 +68,7 @@ export const scraperRouter: FastifyPluginAsync = async (server, opts) => {
     await fs.outputFile(sourcePath, pageSource)
     server.log.info(`URL ${url} received. Starting script ${pythonScript}`)
     let media_url: string[] = []
-    const pScript = spawn(/*VENV_SOURCE*/ 'python3', [path.join(BASE_DIR, pythonScript), sourcePath])
+    const pScript = spawn(VENV_SOURCE /*'python3'*/, [path.join(BASE_DIR, pythonScript), sourcePath])
   
     pScript.stdout.on('data', (data) => {
       media_url.push(data.toString())
