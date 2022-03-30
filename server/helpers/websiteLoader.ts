@@ -25,7 +25,7 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
     await page.type('input[name="username"]', process.env.INSTA_USER!, { delay: 50 })
     await page.type('input[name="password"]', process.env.INSTA_PASS!, { delay: 50 })
     const response = await Promise.all([
-        page.waitForNavigation({timeout: 6000}),
+        page.waitForNavigation({timeout: 60000}),
         page.click('#loginForm > div > div:nth-child(3) > button')
     ]);
     /*await page.waitForFrame(async (frame) => {
