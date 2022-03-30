@@ -185,7 +185,14 @@ export function FormatSelection(props: FormatSelectionProps) {
                         props.downloadLink.map((link) => 
                         <ListItem disablePadding>
                             <ListItemButton onClick={() => onLinkClicked(link)}>
-                                <ListItemText primary={() => clampText(link)} />
+                                <ListItemText 
+                                disableTypography 
+                                primary={
+                                <Typography>
+                                    { clampText(link) }
+                                </Typography>
+                                } 
+                                />
                             </ListItemButton>
                         </ListItem>
                         )
