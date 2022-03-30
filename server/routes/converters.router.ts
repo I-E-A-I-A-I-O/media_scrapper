@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 const MEDIA_FOLDER = path.join(__dirname, '..', 'media')
 const BASE_DIR = path.join(__dirname, '..', '..')
-const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
+//const VENV_SOURCE = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3')
 const TWT_SOURCE = path.join(__dirname, '..', '..', 'twitter-video-download', 'twitter-video-dl.py')
 
 export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
@@ -25,7 +25,7 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
     url = url.replace(/\n/g, '')
     const outputPath = `${MEDIA_FOLDER}/${fileName}.mp4`
     server.log.info(`using output path ${outputPath} for twitter URL ${url}`)
-    const conversion = spawn(VENV_SOURCE /*python3*/, [TWT_SOURCE, url, outputPath])
+    const conversion = spawn(/*VENV_SOURCE*/ 'python3', [TWT_SOURCE, url, outputPath])
 
     conversion.on('exit', async (code) => {
       server.log.info(`twitter URL ${url} conversion finished with code ${code}`)
@@ -128,7 +128,7 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
         await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), `${fileName}.mp3`)
       } catch(err) {
         server.log.error(err)
-        fs.rm(outputPath)
+        await fs.rm(outputPath)
         await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'fail')
       }
     })
@@ -139,32 +139,31 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
 
     if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
 
+    const requestId = uuidv4()
+    await fs.ensureFile(path.join(MEDIA_FOLDER, `${requestId}.txt`))
+    await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'pending')
+    reply.status(202).send(`${requestId}.txt`)
     url = url.replace(/\n/g, '')
-    const pScript = spawn(VENV_SOURCE /*'python3'*/, [path.join(BASE_DIR, 'ytDownload.py'), url, 'audio'])
+    const pScript = spawn(/*VENV_SOURCE*/ 'python3', [path.join(BASE_DIR, 'ytDownload.py'), url, 'audio'])
     let filename = ''
 
     pScript.stdout.on('data', (data) => {
       filename = data.toString()
       filename = filename.replace(/\n/g, '')
-      server.log.info(`Youtube video download from URL ${url} with MP3 format`)
+      server.log.info(`Youtube video downloaded from URL ${url} with MP3 format`)
     })
 
     pScript.on('exit', async (code) => {
       if (filename == null || filename.length === 0) {
         server.log.warn(`Youtube download failed from ${url} using script ytDownload.py`)
-        return reply.status(500).send("Couldn't scrap media from URL. Try again later.")
+        return await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'fail')
       }
 
       try {
-        const filepath = path.join(MEDIA_FOLDER, filename)
-        const filedata = await fs.readFile(filepath)
-        reply.type('audio/mp3')
-        reply.header('Content-Disposition', `attachment; filename=${filename}`)
-        await reply.send(filedata)
-        fs.rm(filepath)
+        await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), filename)
       } catch (err) {
         server.log.error(err)
-        reply.status(500).send('Error sending file. Try again later.')
+        await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'fail')
       }
     })
   })
@@ -174,8 +173,12 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
 
     if (!url || url.length === 0) return reply.status(400).send('No URL provided.')
 
+    const requestId = uuidv4()
+    await fs.ensureFile(path.join(MEDIA_FOLDER, `${requestId}.txt`))
+    await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'pending')
+    reply.status(202).send(`${requestId}.txt`)
     url = url.replace(/\n/g, '')
-    const pScript = spawn(VENV_SOURCE /*'python3'*/, [path.join(BASE_DIR, 'ytDownload.py'), url, 'video'])
+    const pScript = spawn(/*VENV_SOURCE*/ 'python3', [path.join(BASE_DIR, 'ytDownload.py'), url, 'video'])
     let filename = ''
 
     pScript.stdout.on('data', (data) => {
@@ -187,19 +190,14 @@ export const convertersRouter: FastifyPluginAsync = async (server, opts) => {
     pScript.on('exit', async (code) => {
       if (filename == null || filename.length === 0) {
         server.log.warn(`Youtube download failed from ${url} using script ytDownload.py`)
-        return reply.status(500).send("Couldn't scrap media from URL. Try again later.")
+        return await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'fail')
       }
 
       try {
-        const filepath = path.join(MEDIA_FOLDER, filename)
-        const filedata = await fs.readFile(filepath)
-        reply.type('video/mp4')
-        reply.header('Content-Disposition', `attachment; filename=${filename}`)
-        reply.send(filedata)
-        fs.rm(filepath)
+        await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), filename)
       } catch (err) {
         server.log.error(err)
-        reply.status(500).send('Error sending file. Try again later.')
+        await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'fail')
       }
     })
   })

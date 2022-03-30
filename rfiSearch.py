@@ -21,20 +21,21 @@ def get_video_src(html_sourcefile: str):
         if contents.__contains__("window.contextlayer = "):
             toJson = json.loads(contents[contents.index("=") + 1:])
             print(toJson["social"]["podcast_links"][3]["url"])
+            sys.stdout.flush()
             return
         else:
             url = ""
             try:
                 toJson = json.loads(contents)
                 parsedUrl = toJson["sources"][0]["url"]
-                if parsedUrl.__contains__(".ice."):
+                if not parsedUrl.__contains__(".ice."):
                     url = parsedUrl
             except:
                 pass
             finally:
                 if url.__len__() > 0:
                     print(url)
+                    sys.stdout.flush()
 
 
 get_video_src(sys.argv[1])
-sys.stdout.flush()

@@ -96,29 +96,18 @@ export function FormatSelection(props: FormatSelectionProps) {
         else if (!mp4 && props.m3u8) path = 'm3u8/mp3'
         else if (mp4 && IsYoutube(props.downloadLink[0])) path = 'youtube/mp4'
         else if (!mp4 && IsYoutube(props.downloadLink[0])) path = 'youtube/mp3'
-        else if (props.downloadLink.includes('twitter.com')) path = 'twitter'
+        else if (props.downloadLink[0].includes('twitter.com')) path = 'twitter'
         else return
         
-        if (props.m3u8 || props.downloadLink.includes('twitter.com')) {
-            try {
-                const request = await fetch(`${HOST}/${path}?url=${props.downloadLink}`)
-                const requestId = await request.text()
-                const conversionStat = setInterval(async () => {
-                    await conversionStatCallback(conversionStat, requestId)
-                }, 5000)
-            } catch {
-                setLoading(false)
-                props.onNotification('Error converting file. Try again later.', true, 'error')
-            }
-        }
-        else {
-            window.location.href = `${HOST}/${path}?url=${props.downloadLink}`
-            props.onNotification('Converting file... download will start shortly', true, 'info')
-    
-            setTimeout(() => {
-                setLoading(false)
-                props.onNotification('', true, 'info')
-            }, 30000)
+        try {
+            const request = await fetch(`${HOST}/${path}?url=${props.downloadLink}`)
+            const requestId = await request.text()
+            const conversionStat = setInterval(async () => {
+                await conversionStatCallback(conversionStat, requestId)
+            }, 5000)
+        } catch {
+            setLoading(false)
+            props.onNotification('Error converting file. Try again later.', true, 'error')
         }
     }
 

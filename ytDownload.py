@@ -14,6 +14,7 @@ try:
     
     if (type == "video"):
         stream = video.streams.get_highest_resolution()
+        now = now.__add__(".mp4")
     else:
         stream = video.streams.get_audio_only()
         now = now.__add__(".mp3")
