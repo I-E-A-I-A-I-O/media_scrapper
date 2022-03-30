@@ -4,7 +4,7 @@ import puppeteer from "puppeteer"
 const instagramProcess = async (url: string, page: puppeteer.Page, logger: FastifyLoggerInstance): Promise<string | null> => {
     logger.info(`Instagram page receive. User url: ${url} Puppeteer url: ${page.url()}`)
 
-    if (page.url() === url) {
+    if (page.url().includes(url)) {
         logger.info(`URL ${page.url()} were equals. Returning content`)
         return await page.content()
     }
@@ -23,8 +23,7 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
     await page.type('input[name="username"]', process.env.INSTA_USER!, { delay: 50 })
     await page.type('input[name="password"]', process.env.INSTA_PASS!, { delay: 50 })
     await page.$eval('#loginForm > div > div:nth-child(3) > button', el => (el as HTMLElement).click())
-    const response = await page.waitForNavigation()
-    logger.info(response)
+    await page.waitForNavigation()
     logger.info(`Login success. Current URL ${page.url()}`)
 
     if (page.url().includes('/onetap')) {
@@ -34,7 +33,7 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
         logger.info(`Post page reached`)
         return await page.content()
     }
-    else if (page.url() === url) {
+    else if (page.url().includes(url)) {
         logger.info(`Post page reached`)
         await page.waitForSelector('video[class="tWeCl"]')
         return await page.content()

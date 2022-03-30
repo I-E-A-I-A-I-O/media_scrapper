@@ -179,7 +179,12 @@ export function FormatSelection(props: FormatSelectionProps) {
                         props.downloadLink.map((link) => 
                         <ListItem disablePadding>
                             <ListItemButton onClick={() => onLinkClicked(link)}>
-                                <ListItemText primary={link} />
+                                <ListItemText primary={link} sx={{
+                                    overflow: 'hidden', 
+                                    textOverflow: 'ellipsis',
+                                    lineClamp: 2,
+                                    WebkitLineClamp: 2
+                                    }} />
                             </ListItemButton>
                         </ListItem>
                         )
