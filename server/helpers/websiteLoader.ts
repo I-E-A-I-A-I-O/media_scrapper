@@ -20,7 +20,7 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
     await page.type('input[name="password"]', process.env.INSTA_PASS!)
     await page.click('button[type="submit"]')
     await page.waitForSelector('button[class="sqdOP yWX7d    y3zKF     "]')
-    logger.info(`Login sucess`)
+    logger.info(`Login success. Current URL ${page.url()}`)
 
     if (page.url().includes('/onetap')) {
         logger.info(`Cookie page loaded`)
