@@ -25,4 +25,3 @@ venv/
 .idea/
 geckodriver.log
 dist/
-build/
