@@ -140,6 +140,12 @@ export function FormatSelection(props: FormatSelectionProps) {
         return props.downloadLink[0].includes('twitter.com')
     }
 
+    const clampText = (text: string): string => {
+        if (text.length <= 75) return text;
+
+        return text.substring(0, 70).concat("...")
+    }
+
     const dynamicDownloadButtons = () => {
         if (isMultiFormat())
             return (
@@ -179,12 +185,7 @@ export function FormatSelection(props: FormatSelectionProps) {
                         props.downloadLink.map((link) => 
                         <ListItem disablePadding>
                             <ListItemButton onClick={() => onLinkClicked(link)}>
-                                <ListItemText primary={link} sx={{
-                                    overflow: 'hidden', 
-                                    textOverflow: 'ellipsis',
-                                    lineClamp: 2,
-                                    WebkitLineClamp: 2
-                                    }} />
+                                <ListItemText primary={() => clampText(link)} />
                             </ListItemButton>
                         </ListItem>
                         )

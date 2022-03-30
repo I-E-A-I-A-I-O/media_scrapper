@@ -12,7 +12,13 @@ export function Instructions() {
                 <div className={styles.bottomCenterDiv}>
                     <Stack spacing={4} direction={'row'} alignSelf={'center'} >
                         <Typography variant={'subtitle2'}>
-                            CNN
+                            Instagram
+                        </Typography>
+                        <Typography variant={'subtitle2'}>
+                            ●
+                        </Typography>
+                        <Typography variant={'subtitle2'}>
+                            Twitter
                         </Typography>
                         <Typography variant={'subtitle2'}>
                             ●
