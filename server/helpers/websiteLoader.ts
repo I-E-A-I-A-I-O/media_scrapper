@@ -47,10 +47,11 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
 }
 
 export const loadHTML = async (url: string, logger: FastifyLoggerInstance): Promise<string | null> => {
-    const proxy = await getProxy()
+    let proxy = await getProxy()
     let args = ['--no-sandbox']
 
     if (proxy) {
+        proxy = proxy.replace("\r", '')
         logger.info(`Launching browser using proxy ${proxy}`)
         args.push(`--proxy-server=${proxy}`)
     }
