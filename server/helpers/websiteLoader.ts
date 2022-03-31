@@ -1,6 +1,11 @@
 import { FastifyLoggerInstance } from "fastify"
 import puppeteer from "puppeteer"
-import { getProxy } from "./proxyReader"
+
+let PUP_BROWSER: puppeteer.Browser
+
+(async () => {
+    PUP_BROWSER = await puppeteer.launch({ args: ['--no-sandbox'] })
+})()
 
 const instagramProcess = async (url: string, page: puppeteer.Page, logger: FastifyLoggerInstance): Promise<string | null> => {
     logger.info(`Instagram page received. User url: ${url} Puppeteer url: ${page.url()}`)
@@ -47,20 +52,9 @@ const instagramProcess = async (url: string, page: puppeteer.Page, logger: Fasti
 }
 
 export const loadHTML = async (url: string, logger: FastifyLoggerInstance): Promise<string | null> => {
-    let proxy = await getProxy()
-    let args = ['--no-sandbox']
-
-    if (proxy) {
-        proxy = proxy.replace("\r", '')
-        logger.info(`Launching browser using proxy ${proxy}`)
-        args.push(`--proxy-server=${proxy}`)
-    }
-
-    const browser = await puppeteer.launch({ args })
+    const page = await PUP_BROWSER.newPage()
     
     try {
-        const page = await browser.newPage()
-
         const response = await page.goto(url)
 
         if (response.status() !== 200) {
@@ -76,6 +70,6 @@ export const loadHTML = async (url: string, logger: FastifyLoggerInstance): Prom
         logger.error(err)
         return null
     } finally {
-        await browser.close()
+        await page.close()
     }
 }
