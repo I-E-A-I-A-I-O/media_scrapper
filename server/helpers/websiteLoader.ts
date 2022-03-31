@@ -1,5 +1,7 @@
 import { FastifyLoggerInstance } from "fastify"
 import puppeteer from "puppeteer"
+import pageproxy from 'puppeteer-page-proxy'
+import { getProxy } from "./proxyReader"
 
 let PUP_BROWSER: puppeteer.Browser
 
@@ -55,6 +57,10 @@ export const loadHTML = async (url: string, logger: FastifyLoggerInstance): Prom
     const page = await PUP_BROWSER.newPage()
     
     try {
+        const proxy = await getProxy()
+
+        if (proxy) await pageproxy(page, proxy)
+
         const response = await page.goto(url)
 
         if (response.status() !== 200) {
