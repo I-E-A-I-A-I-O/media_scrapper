@@ -2,9 +2,11 @@ import { FastifyLoggerInstance } from "fastify"
 import puppeteer from "puppeteer"
 
 let PUP_BROWSER: puppeteer.Browser
+let DUMMY_PAGE: puppeteer.Page
 
 (async () => {
     PUP_BROWSER = await puppeteer.launch({ args: ['--no-sandbox'] })
+    DUMMY_PAGE = await PUP_BROWSER.newPage()
 })()
 
 const instagramProcess = async (url: string, page: puppeteer.Page, logger: FastifyLoggerInstance): Promise<string | null> => {
