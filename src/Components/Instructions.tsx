@@ -17,22 +17,22 @@ export function Instructions() {
                     swipe
                     sx={{ textAlign: 'center', paddingTop: 8 }}>
                     <div className={styles.imgHoverZoomColorize}>
-                        <img src={'./cnn-logo.png'} />
+                        <img src={'./cnn-logo.png'} alt={'cnn'} />
                     </div>
                     <div className={styles.imgHoverZoomColorize}>
-                        <img src={'./rfi-logo.png'} />
+                        <img src={'./rfi-logo.png'} alt={'radio france internationale'} />
                     </div>
                     <div className={styles.imgHoverZoomColorize}>
-                        <img src={'./youtube-logo.png'} />
+                        <img src={'./youtube-logo.png'} alt={'youtube'} />
                     </div>
                     <div className={styles.imgHoverZoomColorize}>
-                        <img src={'./twitter-logo.png'} />
+                        <img src={'./twitter-logo.png'} alt={'twitter'} />
                     </div>
                     <div className={styles.imgHoverZoomColorize}>
-                        <img src={'./instagram-logo.png'} />
+                        <img src={'./instagram-logo.png'} alt={'instagram'} />
                     </div>
                     <div className={styles.imgHoverZoomColorize}>
-                        <img src={'./m3u8-logo.png'} />
+                        <img src={'./m3u8-logo.png'} alt={'m3u8'} />
                     </div>
                 </Carousel>
             </Stack>
