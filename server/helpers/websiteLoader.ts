@@ -9,6 +9,32 @@ let DUMMY_PAGE: puppeteer.Page
     DUMMY_PAGE = await PUP_BROWSER.newPage()
 })()
 
+const cnnProcess = async (page: puppeteer.Page, logger: FastifyLoggerInstance) => {
+    let selector: string | null
+    logger.info(`CNN page received: ${page.url()}`)
+    
+    try {
+        selector = '#player-large-media_0-pui-wrapper > div > div > button'
+        await page.waitForSelector(selector)
+    } catch (err) {
+        logger.error(err)
+        
+        try {
+            selector = '#player-fave-video1-pui-wrapper > div > div > button'
+            await page.waitForSelector(selector)
+        } catch (err) {
+            logger.error(err)
+            selector = null
+        }
+    }
+
+    if (!selector) return
+
+    await page.$eval(selector, el => (el as HTMLElement).click())
+    await page.waitForTimeout(5000)
+    return
+}
+
 const instagramProcess = async (url: string, page: puppeteer.Page, logger: FastifyLoggerInstance): Promise<string | null> => {
     logger.info(`Instagram page received. User url: ${url} Puppeteer url: ${page.url()}`)
 
@@ -57,6 +83,24 @@ export const loadHTML = async (url: string, logger: FastifyLoggerInstance): Prom
     const page = await PUP_BROWSER.newPage()
     
     try {
+        let m3u8URL: string | null = null
+
+        if (url.includes('cnn.com')) {
+            const client = await page.target().createCDPSession()
+            await client.send('Network.enable')
+            await client.send('Network.setRequestInterception', { patterns: [{ urlPattern: '*' }] })
+            client.on('Network.requestIntercepted', async (e) => {
+                const rurl = e.request.url
+
+                if (rurl.includes('.m3u8') && rurl.includes('master')) {
+                    logger.info(`EVENT INFO: ${e.request.url}`)
+                    m3u8URL = rurl
+                }
+
+                await client.send('Network.continueInterceptedRequest', { interceptionId: e.interceptionId })
+            })
+        }
+
         const response = await page.goto(url)
 
         if (response.status() !== 200) {
@@ -64,6 +108,10 @@ export const loadHTML = async (url: string, logger: FastifyLoggerInstance): Prom
             return null
         }
 
+        if (url.includes("cnn.com")) {
+            await cnnProcess(page, logger)
+            return m3u8URL
+        }
         if (url.includes("instagram.com")) return await instagramProcess(url, page, logger)
 
         const content = await page.content()

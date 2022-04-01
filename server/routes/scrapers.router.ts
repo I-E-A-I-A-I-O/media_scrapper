@@ -15,6 +15,7 @@ const processLink = (url: string): string => {
   if (url.includes('rfi.fr')) return 'rfiSearch.py'
   else if (url.includes('youtube.com') || url.includes('youtu.be')) return 'skip'
   else if (url.includes('.m3u8')) return 'skipm3u8'
+  else if (url.includes('cnn.com')) return 'cnn'
   else if (url.includes('instagram.com')) return 'instagramSearch.py'
   else if (url.includes('twitter.com')) return 'skipmp4'
 
@@ -22,7 +23,7 @@ const processLink = (url: string): string => {
 }
 
 const isSS = (name: string): boolean => {
-  return false
+  return name === 'cnn'
 }
 
 export const scraperRouter: FastifyPluginAsync = async (server, opts) => {
@@ -60,10 +61,19 @@ export const scraperRouter: FastifyPluginAsync = async (server, opts) => {
     }
 
     const sourcePath = path.join(MEDIA_FOLDER, `${requestId}.html`)
-    await fs.ensureFile(sourcePath)
+
+    if (!slowScript) await fs.ensureFile(sourcePath)
+
     const pageSource = await loadHTML(url, server.log)
 
-    if (!pageSource) return reply.status(500).send("Error loading website")
+    if (!pageSource) {
+      if (slowScript) return await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), 'fail')
+
+      return reply.status(500).send("Error loading website")
+    }
+    else if (slowScript) {
+      return await fs.outputFile(path.join(MEDIA_FOLDER, `${requestId}.txt`), pageSource)
+    }
 
     await fs.outputFile(sourcePath, pageSource)
     server.log.info(`URL ${url} received. Starting script ${pythonScript}`)

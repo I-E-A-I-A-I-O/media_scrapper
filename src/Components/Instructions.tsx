@@ -1,6 +1,6 @@
 import React from 'react'
 import styles from './styles/DivStyle.module.css'
-import { Box, Typography, Stack } from '@mui/material'
+import { Box, Typography, Stack, ImageList } from '@mui/material'
 
 export function Instructions() {
     return (
@@ -9,37 +9,17 @@ export function Instructions() {
                 <Typography variant='h5' alignSelf={'center'} textAlign={'center'}>
                   Paste the website URL in the text field above and click the <b>SCRAP</b> button to download the attached media.
                 </Typography>
-                <div className={styles.bottomCenterDiv}>
-                    <Stack spacing={4} direction={'row'} alignSelf={'center'} >
-                        <Typography variant={'subtitle2'}>
-                            Instagram
-                        </Typography>
-                        <Typography variant={'subtitle2'}>
-                            ●
-                        </Typography>
-                        <Typography variant={'subtitle2'}>
-                            Twitter
-                        </Typography>
-                        <Typography variant={'subtitle2'}>
-                            ●
-                        </Typography>
-                        <Typography variant={'subtitle2'}>
-                            RFI
-                        </Typography>
-                        <Typography variant={'subtitle2'}>
-                            ●
-                        </Typography>
-                        <Typography variant={'subtitle2'}>
-                            Youtube
-                        </Typography>
-                        <Typography variant={'subtitle2'}>
-                            ●
-                        </Typography>
-                        <Typography variant={'subtitle2'}>
-                            m3u8
-                        </Typography>
-                    </Stack>
-                </div>
+                <ImageList cols={3} rowHeight={75} alignSelf={'center'}>
+                    <div className={styles.imgHoverZoomColorize}>
+                        <img src={'./cnn-logo.png'} />
+                    </div>
+                    <div className={styles.imgHoverZoomColorize}>
+                        <img src={'./rfi-logo.png'} />
+                    </div>
+                    <div className={styles.imgHoverZoomColorize}>
+                        <img src={'./youtube-logo.png'} />
+                    </div>
+                </ImageList>
             </Stack>
         </Box>
     )

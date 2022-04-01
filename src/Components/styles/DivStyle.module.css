@@ -5,3 +5,16 @@
     transform: translate(-50%, -50%);
     margin: 0 auto;
 }
+
+.imgHoverZoomColorize img {
+    transition: transform .5s, filter 1.5s ease-in-out;
+    filter: grayscale(100%);
+    width: 75px;
+    height: 75px;
+}
+  
+/* The Transformation */
+.imgHoverZoomColorize:hover img {
+  filter: grayscale(0);
+  transform: scale(1.1);
+}
