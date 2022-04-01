@@ -143,7 +143,7 @@ function App() {
 
   return (
     <ThemeProvider theme={ theme }>
-      <Paper sx={{height: '100vh', width: 1}}>
+      <Paper sx={{ height: '100vh', width: 1, flexGrow: 1 }}>
         <Box sx={{ flexGrow: 1 }} width={1}>
           <AppBar position='static'>
             <Toolbar>
