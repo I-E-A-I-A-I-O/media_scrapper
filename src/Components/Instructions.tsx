@@ -17,19 +17,29 @@ export function Instructions() {
                     swipe
                     sx={{ textAlign: 'center', paddingTop: 8 }}>
                     <div className={styles.imgHoverZoomColorize}>
-                        <img src={'./cnn-logo.png'} alt={'cnn'} />
+                        <a href='https://edition.cnn.com/'>
+                            <img src={'./cnn-logo.png'} alt={'cnn'} />
+                        </a>
                     </div>
                     <div className={styles.imgHoverZoomColorize}>
-                        <img src={'./rfi-logo.png'} alt={'radio france internationale'} />
+                        <a href='https://www.rfi.fr/en/'>
+                            <img src={'./rfi-logo.png'} alt={'radio france internationale'} />
+                        </a>
                     </div>
                     <div className={styles.imgHoverZoomColorize}>
-                        <img src={'./youtube-logo.png'} alt={'youtube'} />
+                        <a href='https://youtube.com'>
+                            <img src={'./youtube-logo.png'} alt={'youtube'} />
+                        </a>
                     </div>
                     <div className={styles.imgHoverZoomColorize}>
-                        <img src={'./twitter-logo.png'} alt={'twitter'} />
+                        <a href='https://twitter.com'>
+                            <img src={'./twitter-logo.png'} alt={'twitter'} />
+                        </a>
                     </div>
                     <div className={styles.imgHoverZoomColorize}>
-                        <img src={'./instagram-logo.png'} alt={'instagram'} />
+                        <a href='https://instagram.com'>
+                            <img src={'./instagram-logo.png'} alt={'instagram'} />
+                        </a>
                     </div>
                     <div className={styles.imgHoverZoomColorize}>
                         <img src={'./m3u8-logo.png'} alt={'m3u8'} />
